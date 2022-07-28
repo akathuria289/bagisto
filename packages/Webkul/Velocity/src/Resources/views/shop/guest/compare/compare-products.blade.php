@@ -13,8 +13,10 @@
             <h2 class="fw6 col-6">
                 {{ __('velocity::app.customer.compare.compare_similar_items') }}
             </h2>
-
             <div class="col-6" v-if="products.length > 0">
+                <i class="rango-arrow-left"></i>
+                <i class="rango-arrow-right" @click="nextSlider(sliderIncrement)"></i>
+
                 <button
                     class="theme-btn light float-right"
                     @click="removeProductCompare('all')">
@@ -166,6 +168,7 @@
                     'isCustomer': '{{ auth()->guard('customer')->user() ? "true" : "false" }}' == "true",
                     'isProductListLoaded': false,
                     'attributeOptions': @json($attributeOptionTranslations),
+                    'sliderIncrement': 160,
                 };
             },
 
@@ -331,12 +334,25 @@
                         }
 
                         e.preventDefault();
-
-                        const x = e.pageX - slider.offsetLeft;
+                        const x =  e.pageX - slider.offsetLeft;
                         const walk = (x - startX) * 3;
                         slider.scrollLeft = scrollLeft - walk;
                     });
-                }
+                },
+
+                nextSlider: function(getScrollLeft){
+                    const slider = document.querySelector('.compare-products');
+
+                    slider.scrollLeft = getScrollLeft;
+                    this.sliderIncrement = getScrollLeft + 200;
+                },
+
+                // prevSlider: function(increament_id){
+                //     const slider = document.querySelector('.compare-products');
+
+                //     slider.scrollLeft = 200-increament_id;
+                //     this.increamne_id = this.increamne_id+50;
+                // }
             }
         });
     </script>

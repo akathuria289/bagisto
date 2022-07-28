@@ -1138,3 +1138,21 @@ i.within-circle {
 .show-password {
     margin-top:10px !important;
 }
+
+.compare-products {
+    transform: translate(0px, 0px);
+    transition: transform 0.5s ease 0s;
+}
+
+.cart-details {
+    div.col-6 {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        i {
+            font-size: 24px;
+            cursor: pointer;
+        }
+    }
+}
