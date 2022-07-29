@@ -1140,8 +1140,10 @@ i.within-circle {
 }
 
 .compare-products {
-    transform: translate(0px, 0px);
-    transition: transform 0.5s ease 0s;
+    .table_tr{
+        transform: translate(0px, 0px);
+        transition: transform 0.5s ease 0s; 
+    } 
 }
 
 .cart-details {

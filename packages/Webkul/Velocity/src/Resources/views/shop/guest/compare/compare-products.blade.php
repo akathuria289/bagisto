@@ -14,7 +14,7 @@
                 {{ __('velocity::app.customer.compare.compare_similar_items') }}
             </h2>
             <div class="col-6" v-if="products.length > 0">
-                <i class="rango-arrow-left"></i>
+                <i class="rango-arrow-left" @click="prevSlider(sliderIncrement)"></i>
                 <i class="rango-arrow-right" @click="nextSlider(sliderIncrement)"></i>
 
                 <button
@@ -45,7 +45,7 @@
                     @endphp
 
                     @foreach ($comparableAttributes as $attribute)
-                        <tr>
+                        <tr class='table_tr'>
                             <td class="header">
                                 <span class="fs16 font-weight-bold">{{ isset($attribute['name']) ? $attribute['name'] : $attribute['admin_name'] }}</span>
                             </td>
@@ -342,16 +342,26 @@
 
                 nextSlider: function(getScrollLeft){
                     const slider = document.querySelector('.compare-products');
+                    const get_table_tr = document.getElementsByClassName('table_tr');
 
                     slider.scrollLeft = getScrollLeft;
                     this.sliderIncrement = getScrollLeft + 200;
+
+                    get_table_tr.forEach((item, index) => {
+                        item.style.transform = 'translate(-' + slider.scrollLeft + 'px, 0px)';
+                    })
                 },
 
-                // prevSlider: function(increament_id){
+                // prevSlider: function(getScrollRight){
                 //     const slider = document.querySelector('.compare-products');
 
-                //     slider.scrollLeft = 200-increament_id;
-                //     this.increamne_id = this.increamne_id+50;
+                //     slider.scrollLeft = getScrollRight;
+                //     this.sliderIncrement = getScrollRight - 200;
+                //     console.log(this.sliderIncrement);
+
+                //     // slider.scrollLeft = 200-increament_id;
+                //     // this.increamne_id = this.increamne_id+50;
+                //     // console.log("hello ")
                 // }
             }
         });
