@@ -5,6 +5,7 @@ namespace Webkul\Velocity\Http\Controllers\Admin;
 use Webkul\Product\Repositories\ProductRepository;
 use Webkul\Velocity\DataGrids\ContentDataGrid;
 use Webkul\Velocity\Repositories\ContentRepository;
+use Webkul\Category\Repositories\CategoryRepository;
 
 class ContentController extends Controller
 {
@@ -17,7 +18,8 @@ class ContentController extends Controller
      */
     public function __construct(
         protected ProductRepository $productRepository,
-        protected ContentRepository $contentRepository
+        protected ContentRepository $contentRepository,
+        protected CategoryRepository $categoryRepository,
     )
     {
         $this->_config = request('_config');
@@ -69,7 +71,9 @@ class ContentController extends Controller
      */
     public function create()
     {
-        return view($this->_config['view']);
+        $contentTree = $this->contentRepository->getContentTree(null, ['id']);
+
+        return view($this->_config['view'], compact('contentTree'));
     }
 
     /**
@@ -102,7 +106,9 @@ class ContentController extends Controller
     {
         $content = $this->contentRepository->findOrFail($id);
 
-        return view($this->_config['view'], compact('content'));
+        $contentTree = $this->contentRepository->getContentTree(null, ['id']);
+
+        return view($this->_config['view'], compact('content','contentTree'));
     }
 
     /**

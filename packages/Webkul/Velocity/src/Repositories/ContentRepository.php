@@ -6,6 +6,7 @@ use Webkul\Core\Eloquent\Repository;
 use Illuminate\Container\Container as App;
 use Webkul\Product\Repositories\ProductRepository;
 use Prettus\Repository\Traits\CacheableRepository;
+use DB;
 
 class ContentRepository extends Repository
 {
@@ -34,6 +35,17 @@ class ContentRepository extends Repository
     function model()
     {
         return 'Webkul\Velocity\Contracts\Content';
+    }
+    
+    /**
+     * @param  int  $id
+     * @return \Webkul\Velocity\Models\Content
+     */
+    public function getContentTree($id = null)
+    {
+        return $id
+            ? $this->model::orderBy('position', 'ASC')->where('id', '!=', $id)->get()
+            : $this->model::orderBy('position', 'ASC')->get();
     }
 
     /**
@@ -134,27 +146,35 @@ class ContentRepository extends Repository
             ->select(
                 'velocity_contents.content_type',
                 'velocity_contents_translations.title as title',
+                'velocity_contents.id as child_id',
                 'velocity_contents_translations.page_link as page_link',
                 'velocity_contents_translations.link_target as link_target'
             )
             ->where('velocity_contents.status', 1)
-            ->leftJoin('velocity_contents_translations', 'velocity_contents.id', 'velocity_contents_translations.content_id')
+            ->leftJoin('velocity_contents_translations', 'velocity_contents.parent_id', 'velocity_contents_translations.content_id')
             ->distinct('velocity_contents_translations.id')
             ->where('velocity_contents_translations.locale', app()->getLocale())
+            ->where('velocity_contents.parent_id',"!=", null)
             ->limit($headerContentCount)
             ->get();
 
         $formattedContent = [];
 
         foreach ($contentCollection as $content) {
+            $content_child = DB::table("velocity_contents_translations")
+            ->select("velocity_contents_translations.title", "velocity_contents_translations.page_link")
+            ->where('velocity_contents_translations.content_id',$content->child_id)->first();
+            
             array_push($formattedContent, [
                 'title'        => $content->title,
                 'page_link'    => $content->page_link,
                 'link_target'  => $content->link_target,
                 'content_type' => $content->content_type,
+                'child'        => $content_child->title,
+                'child_link'   => $content_child->page_link,
             ]);
         }
-
+        
         return $formattedContent;
     }
 }

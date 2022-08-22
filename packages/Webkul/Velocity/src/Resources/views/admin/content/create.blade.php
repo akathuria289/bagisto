@@ -91,6 +91,13 @@
 
                 {!! view_render_event('bagisto.admin.content.create_form_accordian.content.after') !!}
 
+                <accordian title="{{ __('admin::app.catalog.categories.parent-category') }}" :active="true">
+                    <div slot="body">
+
+                        <tree-view value-field="id" name-field="parent_id" input-type="radio" items='@json($contentTree)' fallback-locale="{{ config('app.fallback_locale') }}"></tree-view>
+                    </div>
+                </accordian>
+
             </div>
 
         </form>

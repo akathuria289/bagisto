@@ -25,6 +25,7 @@ class Content extends TranslatableModel implements ContentContract
         'content_type',
         'position',
         'status',
+        'parent_id'
     ];
 
     protected $with = ['translations'];
