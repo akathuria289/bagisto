@@ -171,14 +171,18 @@ abstract class AbstractType
             }
 
             if (
-                $attribute->type == 'multiselect'
-                || $attribute->type == 'checkbox'
+                $attribute->type === 'multiselect'
+                || $attribute->type === 'checkbox'
             ) {
                 $data[$attribute->code] = isset($data[$attribute->code]) ? implode(',', $data[$attribute->code]) : null;
             }
 
             if (! isset($data[$attribute->code])) {
                 continue;
+            }
+
+            if ($attribute->type === 'text') {
+                $data[$attribute->code] = strip_tags($data[$attribute->code]);
             }
 
             if (
