@@ -1,6 +1,6 @@
 <?php
 
-// Controllers
+use Illuminate\Support\Facades\Route;
 use Webkul\BookingProduct\Http\Controllers\Shop\BookingProductController;
 
 Route::group(['middleware' => ['web', 'theme', 'locale', 'currency']], function () {

@@ -24,8 +24,8 @@ class BookingProductServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'bookingproduct');
 
         $this->publishes([
-            __DIR__ . '/../../publishable/assets' => public_path('themes/default/assets'),
-        ], 'public');
+            __DIR__ . '/../../publishable/assets' => public_path('vendor/webkul/booking-product/assets'),
+        ]);
 
         $this->app->register(EventServiceProvider::class);
     }

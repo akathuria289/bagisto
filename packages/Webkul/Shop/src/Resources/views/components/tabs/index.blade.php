@@ -1,35 +1,40 @@
-<tabs>
-    {{ $slot }}
-</tabs>
+@props(['position' => 'left'])
+
+<v-tabs
+    position="{{ $position }}"
+    {{ $attributes }}
+>
+    <x-shop::shimmer.tabs></x-shop::shimmer.tabs>
+</v-tabs>
 
 @pushOnce('scripts')
-    <script type="text/x-template" id="tabs-template">
+    <script type="text/x-template" id="v-tabs-template">
         <div>
-            <div {{ $attributes->merge(['class' => 'tabs']) }}>
-                <ul>
-                    <li
-                        v-for="tab in tabs"
-                        :class="{ 'active': tab.isActive }"
-                        @click="change(tab)"
-                    >
-                        <a>@{{ tab.name }}</a>
-                    </li>
-                </ul>
+            <div
+                class="flex bg-[#F5F5F5] pt-[18px] gap-[30px] justify-center max-1180:hidden"
+                :style="positionStyles"
+            >
+                <div
+                    v-for="tab in tabs"
+                    class="text-[20px] font-medium text-[#7D7D7D] pb-[18px] px-[30px] cursor-pointer"
+                    :class="{'text-black border-navyBlue border-b-[2px]': tab.isActive }"
+                    v-text="tab.title"
+                    @click="change(tab)"
+                >
+                </div>
             </div>
 
-            <div class="tabs-content">
-
-                <slot></slot>
-
+            <div>
+                {{ $slot }}
             </div>
         </div>
     </script>
 
     <script type="module">
-        app.component('tabs', {
-            template: '#tabs-template',
+        app.component('v-tabs', {
+            template: '#v-tabs-template',
 
-            inject: ['$validator'],
+            props: ['position'],
 
             data() {
                 return {
@@ -37,17 +42,22 @@
                 }
             },
 
-            created() {
-                this.tabs = this.$children;
+            computed: {
+                positionStyles() {
+                    return [
+                        `display: flex`,
+                        `justify-content: ${this.position}`
+                    ];
+                },
             },
 
             methods: {
                 change(selectedTab) {
                     this.tabs.forEach(tab => {
-                        tab.isActive = (tab.name == selectedTab.name);
+                        tab.isActive = (tab.title == selectedTab.title);
                     });
-                }
-            }
+                },
+            },
         });
     </script>
 @endPushOnce

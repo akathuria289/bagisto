@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Webkul\CMS\Http\Controllers\Shop\PagePresenterController;
-use Webkul\Core\Http\Controllers\CountryStateController;
-use Webkul\Shop\Http\Controllers\CategoryController;
+use Webkul\Shop\Http\Controllers\ProductsCategoriesProxyController;
+use Webkul\Shop\Http\Controllers\CMS\PagePresenterController;
+use Webkul\Shop\Http\Controllers\CountryStateController;
+use Webkul\Shop\Http\Controllers\CompareController;
 use Webkul\Shop\Http\Controllers\HomeController;
 use Webkul\Shop\Http\Controllers\ProductController;
 use Webkul\Shop\Http\Controllers\ReviewController;
@@ -12,30 +13,15 @@ use Webkul\Shop\Http\Controllers\SubscriptionController;
 
 Route::group(['middleware' => ['locale', 'theme', 'currency']], function () {
     /**
-     * Cart merger middleware. This middleware will take care of the items
-     * which are deactivated at the time of buy now functionality. If somehow
-     * user redirects without completing the checkout then this will merge
-     * full cart.
-     *
-     * If some routes are not able to merge the cart, then place the route in this
-     * group.
+     * CMS pages.
      */
-    Route::group(['middleware' => ['cart.merger']], function () {
-        /**
-         * CMS pages.
-         */
-        Route::get('page/{slug}', [PagePresenterController::class, 'presenter'])->name('shop.cms.page');
+    Route::get('page/{slug}', [PagePresenterController::class, 'presenter'])->name('shop.cms.page');
 
-        /**
-         * Fallback route.
-         */
-        Route::fallback(\Webkul\Shop\Http\Controllers\ProductsCategoriesProxyController::class . '@index')
-            ->defaults('_config', [
-                'product_view'  => 'shop::products.view',
-                'category_view' => 'shop::products.index',
-            ])
-            ->name('shop.productOrCategory.index');
-    });
+    /**
+     * Fallback route.
+     */
+    Route::fallback(ProductsCategoriesProxyController::class . '@index')
+        ->name('shop.productOrCategory.index');
 
     /**
      * Store front home.
@@ -62,9 +48,14 @@ Route::group(['middleware' => ['locale', 'theme', 'currency']], function () {
     /**
      * Subscription routes.
      */
-    Route::get('subscribe', [SubscriptionController::class, 'subscribe'])->name('shop.subscribe');
+    Route::post('subscribe', [SubscriptionController::class, 'subscribe'])->name('shop.subscribe');
 
     Route::get('unsubscribe/{token}', [SubscriptionController::class, 'unsubscribe'])->name('shop.unsubscribe');
+
+    /**
+     * Compare products
+     */
+    Route::get('compare', [CompareController::class, 'index'])->name('shop.compare.index');
 
     /**
      * Product and categories routes.
@@ -86,8 +77,4 @@ Route::group(['middleware' => ['locale', 'theme', 'currency']], function () {
     Route::get('product/{id}/{attribute_id}', [ProductController::class, 'download'])->defaults('_config', [
         'view' => 'shop.products.index',
     ])->name('shop.product.file.download');
-
-    Route::get('categories/filterable-attributes/{categoryId?}', [CategoryController::class, 'getFilterableAttributes'])->name('shop.catalog.categories.filterable_attributes');
-
-    Route::get('categories/maximum-price/{categoryId?}', [CategoryController::class, 'getCategoryProductMaximumPrice'])->name('shop.catalog.categories.maximum_price');
 });

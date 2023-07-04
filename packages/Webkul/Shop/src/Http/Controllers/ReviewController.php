@@ -3,25 +3,21 @@
 namespace Webkul\Shop\Http\Controllers;
 
 use Webkul\Product\Repositories\ProductRepository;
+use Webkul\Product\Repositories\ProductReviewAttachmentRepository;
 use Webkul\Product\Repositories\ProductReviewRepository;
-use Webkul\Product\Repositories\ProductReviewImageRepository;
 
 class ReviewController extends Controller
 {
     /**
      * Create a new controller instance.
      *
-     * @param  \Webkul\Product\Repositories\ProductRepository  $productRepository
-     * @param  \Webkul\Product\Repositories\ProductReviewRepository  $productReviewRepository
-     * @param  \Webkul\Product\Repositories\ProductReviewImageRepository  $productReviewImageRepository
      * @return void
      */
     public function __construct(
         protected ProductRepository $productRepository,
         protected ProductReviewRepository $productReviewRepository,
-        protected ProductReviewImageRepository $productReviewImageRepository
-    )
-    {
+        protected ProductReviewAttachmentRepository $productReviewAttachmentRepository
+    ) {
         parent::__construct();
     }
 
@@ -54,47 +50,11 @@ class ReviewController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function store($id)
-    {
-        $this->validate(request(), [
-            'comment' => 'required',
-            'rating'  => 'required|numeric|min:1|max:5',
-            'title'   => 'required',
-        ]);
-
-        $product = $this->productRepository->find($id);
-
-        $data = array_merge(request()->all(), [
-            'status'     => 'pending',
-            'product_id' => $id,
-        ]);
-
-        if (auth()->guard('customer')->user()) {
-            $data['customer_id'] = auth()->guard('customer')->user()->id;
-
-            $data['name'] = auth()->guard('customer')->user()->first_name . ' ' . auth()->guard('customer')->user()->last_name;
-        }
-
-        $review = $this->productReviewRepository->create($data);
-
-        $this->productReviewImageRepository->uploadImages($data, $review);
-
-        session()->flash('success', trans('shop::app.response.submit-success', ['name' => 'Product Review']));
-
-        return redirect()->route('shop.productOrCategory.index', $product->url_key);
-    }
-
-    /**
      * Display reviews of particular product.
      *
      * @param  string  $slug
      * @return \Illuminate\View\View
-    */
+     */
     public function show($slug)
     {
         $product = $this->productRepository->findBySlugOrFail($slug);
@@ -130,7 +90,7 @@ class ReviewController extends Controller
      * Customer delete all reviews from their account
      *
      * @return \Illuminate\Http\Response
-    */
+     */
     public function deleteAll()
     {
         $reviews = auth()->guard('customer')->user()->all_reviews;

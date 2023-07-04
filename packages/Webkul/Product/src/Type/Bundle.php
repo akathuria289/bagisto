@@ -67,6 +67,13 @@ class Bundle extends AbstractType
     protected $isChildrenCalculated = true;
 
     /**
+     * Show quantity box.
+     *
+     * @var bool
+     */
+    protected $showQuantityBox = true;
+
+    /**
      * Create a new product type instance.
      *
      * @param  \Webkul\Customer\Repositories\CustomerRepository  $customerRepository
@@ -193,22 +200,22 @@ class Bundle extends AbstractType
     {
         return [
             'from' => [
-                'regular_price' => [
+                'regular' => [
                     'price'           => core()->convertPrice($this->evaluatePrice($regularMinimalPrice = $this->getRegularMinimalPrice())),
                     'formatted_price' => core()->currency($this->evaluatePrice($regularMinimalPrice)),
                 ],
-                'final_price'   => [
+                'final'   => [
                     'price'           => core()->convertPrice($this->evaluatePrice($minimalPrice = $this->getMinimalPrice())),
                     'formatted_price' => core()->currency($this->evaluatePrice($minimalPrice)),
                 ],
             ],
 
             'to' => [
-                'regular_price' => [
+                'regular' => [
                     'price'           => core()->convertPrice($this->evaluatePrice($regularMaximumPrice = $this->getRegularMaximumPrice())),
                     'formatted_price' => core()->currency($this->evaluatePrice($regularMaximumPrice)),
                 ],
-                'final_price'   => [
+                'final'   => [
                     'price'           => core()->convertPrice($this->evaluatePrice($maximumPrice = $this->getMaximumPrice())),
                     'formatted_price' => core()->currency($this->evaluatePrice($maximumPrice)),
                 ],
@@ -223,39 +230,10 @@ class Bundle extends AbstractType
      */
     public function getPriceHtml()
     {
-        $prices = $this->getProductPrices();
-
-        $priceHtml = '';
-
-        if ($this->haveDiscount()) {
-            $priceHtml .= '<div class="sticker sale">' . trans('shop::app.products.sale') . '</div>';
-        }
-
-        $priceHtml .= '<div class="price-from">';
-
-        if ($prices['from']['regular_price']['price'] != $prices['from']['final_price']['price']) {
-            $priceHtml .= '<span class="bundle-regular-price">' . $prices['from']['regular_price']['formatted_price'] . '</span>'
-                . '<span class="bundle-special-price">' . $prices['from']['final_price']['formatted_price'] . '</span>';
-        } else {
-            $priceHtml .= '<span>' . $prices['from']['regular_price']['formatted_price'] . '</span>';
-        }
-
-        if ($prices['from']['regular_price']['price'] != $prices['to']['regular_price']['price']
-            || $prices['from']['final_price']['price'] != $prices['to']['final_price']['price']
-        ) {
-            $priceHtml .= '<span class="bundle-to">To</span>';
-
-            if ($prices['to']['regular_price']['price'] != $prices['to']['final_price']['price']) {
-                $priceHtml .= '<span class="bundle-regular-price">' . $prices['to']['regular_price']['formatted_price'] . '</span>'
-                    . '<span class="bundle-special-price">' . $prices['to']['final_price']['formatted_price'] . '</span>';
-            } else {
-                $priceHtml .= '<span>' . $prices['to']['regular_price']['formatted_price'] . '</span>';
-            }
-        }
-
-        $priceHtml .= '</div>';
-
-        return $priceHtml;
+        return view('shop::products.prices.bundle', [
+            'product' => $this->product,
+            'prices'  => $this->getProductPrices(),
+        ])->render();
     }
 
     /**

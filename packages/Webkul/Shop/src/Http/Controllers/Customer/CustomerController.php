@@ -24,9 +24,6 @@ class CustomerController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  \Webkul\Customer\Repositories\CustomerRepository  $customerRepository
-     * @param  \Webkul\Product\Repositories\ProductReviewRepository  $productReviewRepository
-     * @param  \Webkul\Core\Repositories\SubscribersListRepository  $subscriptionRepository
      * @return void
      */
     public function __construct(
@@ -58,7 +55,7 @@ class CustomerController extends Controller
     {
         $customer = $this->customerRepository->find(auth()->guard('customer')->user()->id);
 
-        return view($this->_config['view'], compact('customer'));
+        return view('shop::customers.account.profile.edit', compact('customer'));
     }
 
     /**
@@ -148,12 +145,12 @@ class CustomerController extends Controller
 
             session()->flash('success', trans('shop::app.customer.account.profile.edit-success'));
 
-            return redirect()->route($this->_config['redirect']);
+            return redirect()->route('shop.customers.account.profile.index');
         }
 
         session()->flash('success', trans('shop::app.customer.account.profile.edit-fail'));
 
-        return redirect()->back($this->_config['redirect']);
+        return redirect()->back('shop.customers.account.profile.edit');
     }
 
     /**
@@ -162,36 +159,31 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy()
     {
-        $id = auth()->guard('customer')->user()->id;
-
-        $data = request()->all();
-
-        $customerRepository = $this->customerRepository->findorFail($id);
+        $customerRepository = $this->customerRepository->findorFail(auth()->guard('customer')->user()->id);
 
         try {
-            if (Hash::check($data['password'], $customerRepository->password)) {
-                $orders = $customerRepository->all_orders->whereIn('status', ['pending', 'processing'])->first();
+            if (Hash::check(request()->input('password'), $customerRepository->password)) {
 
-                if ($orders) {
-                    session()->flash('error', trans('admin::app.response.order-pending', ['name' => 'Customer']));
+                if ($customerRepository->all_orders->whereIn('status', ['pending', 'processing'])->first()) {
+                    session()->flash('error', trans('shop::app.customers.account.profile.order-pending'));
 
-                    return redirect()->route($this->_config['redirect']);
+                    return redirect()->route('shop.customers.account.profile.index');
                 } else {
-                    $this->customerRepository->delete($id);
+                    $this->customerRepository->delete(auth()->guard('customer')->user()->id);
 
-                    session()->flash('success', trans('admin::app.response.delete-success', ['name' => 'Customer']));
+                    session()->flash('success', trans('shop::app.customers.account.profile.delete-success'));
 
                     return redirect()->route('shop.customer.session.index');
                 }
             } else {
-                session()->flash('error', trans('shop::app.customer.account.address.delete.wrong-password'));
+                session()->flash('error', trans('shop::app.customers.account.profile.wrong-password'));
 
                 return redirect()->back();
             }
         } catch (\Exception $e) {
-            session()->flash('error', trans('admin::app.response.delete-failed', ['name' => 'Customer']));
+            session()->flash('error', trans('shop::app.customers.account.profile.delete-failed'));
 
             return redirect()->route($this->_config['redirect']);
         }
@@ -206,6 +198,6 @@ class CustomerController extends Controller
     {
         $reviews = $this->productReviewRepository->getCustomerReview();
 
-        return view($this->_config['view'], compact('reviews'));
+        return view('shop::customers.account.reviews.index', compact('reviews'));
     }
 }

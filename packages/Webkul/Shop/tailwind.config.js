@@ -37,8 +37,14 @@ module.exports = {
                 poppins: ["Poppins"],
                 dmserif: ["DM Serif Display"],
             },
-        },
+        }
     },
 
     plugins: [],
+
+    safelist: [
+        {
+            pattern: /icon-/,
+        }
+    ]
 };

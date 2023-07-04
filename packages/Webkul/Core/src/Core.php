@@ -21,7 +21,11 @@ class Core
      *
      * @var string
      */
+<<<<<<< HEAD
     const BAGISTO_VERSION = '1.x-dev';
+=======
+    const BAGISTO_VERSION = '2.x-dev';
+>>>>>>> 98c81a6adc8b22fdeabdc1b6027a006ee51ba3bc
 
     /**
      * Channel.
@@ -627,28 +631,6 @@ class Core
         $formatter = new \NumberFormatter(app()->getLocale() . '@currency=' . $code, \NumberFormatter::CURRENCY);
 
         return $formatter->getSymbol(\NumberFormatter::CURRENCY_SYMBOL);
-    }
-
-    /**
-     * Format and convert price with currency symbol.
-     *
-     * @return array
-     */
-    public function getAccountJsSymbols()
-    {
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
-
-        $pattern = $formatter->getPattern();
-
-        $pattern = str_replace('¤', '%s', $pattern);
-
-        $pattern = str_replace('#,##0.00', '%v', $pattern);
-
-        return [
-            'symbol'  => $this->currencySymbol($this->getCurrentCurrencyCode()),
-            'decimal' => $formatter->getSymbol(\NumberFormatter::DECIMAL_SEPARATOR_SYMBOL),
-            'format'  => $pattern,
-        ];
     }
 
     /**

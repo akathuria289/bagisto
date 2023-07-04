@@ -1,15 +1,22 @@
-import { defineConfig } from "vite";
-import dotenv from "dotenv";
+import { defineConfig, loadEnv } from "vite";
 import laravel from "laravel-vite-plugin";
-import vue from "@vitejs/plugin-vue";
-
-dotenv.config({ path: "../../../.env" });
+import path from "path";
 
 export default defineConfig(({ mode }) => {
+    const envDir = "../../../";
+
+    Object.assign(process.env, loadEnv(mode, envDir));
+
     return {
+        build: {
+            emptyOutDir: true,
+        },
+
+        envDir,
+
         server: {
-            host: process.env.SHOP_VITE_HOST || "localhost",
-            port: process.env.SHOP_VITE_PORT || 5173,
+            host: process.env.VITE_SHOP_HOST || "localhost",
+            port: process.env.VITE_SHOP_PORT || 5173,
         },
 
         plugins: [
@@ -23,24 +30,14 @@ export default defineConfig(({ mode }) => {
                 ],
                 refresh: true,
             }),
-            vue({
-                template: {
-                    transformAssetUrls: {
-                        // The Vue plugin will re-write asset URLs, when referenced
-                        // in Single File Components, to point to the Laravel web
-                        // server. Setting this to `null` allows the Laravel plugin
-                        // to instead re-write asset URLs to point to the Vite
-                        // server instead.
-                        base: null,
-
-                        // The Vue plugin will parse absolute URLs and treat them
-                        // as absolute paths to files on disk. Setting this to
-                        // `false` will leave absolute URLs un-touched so they can
-                        // reference assets in the public directory as expected.
-                        includeAbsolute: false,
-                    },
-                },
-            }),
         ],
+
+        experimental: {
+            renderBuiltUrl(filename, { hostId, hostType, type }) {
+                if (hostType === "css") {
+                    return path.basename(filename);
+                }
+            },
+        },
     };
 });

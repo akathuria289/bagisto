@@ -1,3 +1,9 @@
+@props([
+    'hasHeader'  => true,
+    'hasFeature' => true,
+    'hasFooter'  => true,
+])
+
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 
@@ -9,6 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="base-url" content="{{ url()->to('/') }}">
+    <meta name="currency-code" content="{{ core()->getCurrentCurrencyCode() }}">
     <meta http-equiv="content-language" content="{{ app()->getLocale() }}">
 
     @stack('meta')
@@ -48,7 +55,9 @@
         <x-shop::flash-group />
 
         {{-- Page Header Blade Component --}}
-        <x-shop::layouts.header />
+        @if ($hasHeader)
+            <x-shop::layouts.header />
+        @endif
 
         {!! view_render_event('bagisto.shop.layout.content.before') !!}
 
@@ -58,10 +67,14 @@
         {!! view_render_event('bagisto.shop.layout.content.after') !!}
 
         {{-- Page Features Blade Component --}}
-        <x-shop::layouts.features />
+        @if ($hasFeature)
+            <x-shop::layouts.features />
+        @endif
 
         {{-- Page Footer Blade Component --}}
-        <x-shop::layouts.footer />
+        @if ($hasFooter)
+            <x-shop::layouts.footer />
+        @endif
     </div>
 
     {!! view_render_event('bagisto.shop.layout.body.after') !!}
