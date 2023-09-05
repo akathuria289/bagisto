@@ -42,7 +42,7 @@ class Themes
      */
     public function __construct()
     {
-        if (! Str::contains(request()->route()?->uri, config('app.admin_url') . '/')) {
+        if (! Str::contains(request()->url(), config('app.admin_url') . '/')) {
             $this->defaultThemeCode = Config::get('themes.admin-default', null);
         } else {
             $this->defaultThemeCode = Config::get('themes.default', null);
@@ -79,7 +79,8 @@ class Themes
                 $code,
                 $data['name'] ?? '',
                 $data['assets_path'] ?? '',
-                $data['views_path'] ?? ''
+                $data['views_path'] ?? '',
+                isset($data['vite']) ? $data['vite'] : [],
             );
 
             if (! empty($data['parent'])) {
@@ -116,7 +117,7 @@ class Themes
     {
         $parentThemes = [];
 
-        if (Str::contains(request()->route()?->uri, config('app.admin_url') . '/')) {
+        if (Str::contains(request()->url(), config('app.admin_url') . '/')) {
             $themes = config('themes.admin-themes', []);
         } else {
             $themes = config('themes.themes', []);
@@ -125,9 +126,10 @@ class Themes
         foreach ($themes as $code => $data) {
             $this->themes[] = new Theme(
                 $code,
-                isset($data['name']) ? $data['name'] : '',
-                isset($data['assets_path']) ? $data['assets_path'] : '',
-                isset($data['views_path']) ? $data['views_path'] : ''
+                $data['name'] ?? '',
+                $data['assets_path'] ?? '',
+                $data['views_path'] ?? '',
+                $data['vite'] ?? [],
             );
 
             if (! empty($data['parent'])) {
@@ -229,14 +231,13 @@ class Themes
     }
 
     /**
-     * Return asset url of current theme.
+     * Return the asset URL of the current theme if a theme is found; otherwise, check from the namespace.
      *
-     * @param  string  $themeName
      * @return string
      */
-    public function url($filename)
+    public function url(string $filename, ?string $namespace)
     {
-        return $this->current()->url($filename);
+        return $this->current()->url($filename, $namespace);
     }
 
     /**

@@ -1,16 +1,16 @@
 @php
     $text = [
-        'text' => $message . ' ' . route('shop.productOrCategory.index', $product->url_key),
+        'text' => $message . ' ' . route('shop.product_or_category.index', $product->url_key),
     ];
 
-    $whatsapp_url = 'whatsapp://send?' . http_build_query($text);
+    $whatsappURL = 'whatsapp://send?' . http_build_query($text);
 @endphp
 
 <v-whatsapp-share></v-whatsapp-share>
 
 @push('scripts')
-    <script type="text/x-template" id="whatsapp-share-link">
-        <li class="bb-social-share__item bb-social--whatsapp">
+    <script type="text/x-template" id="v-whatsapp-share-template">
+        <li class="transition-all hover:opacity-[0.8]">
             <a 
                 :href="shareUrl" 
                 data-action="share/whatsapp/share" 
@@ -25,9 +25,9 @@
         app.component('v-whatsapp-share', {
             template: '#v-whatsapp-share-template',
 
-            data: function () {
+            data() {
                 return {
-                    shareUrl: '{{ $whatsapp_url }}'
+                    shareUrl: '{{ $whatsappURL }}'
                 }
             },
         });

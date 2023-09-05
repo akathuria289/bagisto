@@ -3,6 +3,11 @@
     :has-feature="false"
     :has-footer="false"
 >
+    {{-- Page Title --}}
+    <x-slot:title>
+		@lang('shop::app.checkout.success.thanks')
+    </x-slot>
+
 	<div class="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
 		<div class="grid gap-y-[20px] place-items-center">
 			<img 
@@ -34,7 +39,7 @@
 			{{ view_render_event('bagisto.shop.checkout.continue-shopping.before', ['order' => $order]) }}
 
 			<a href="{{ route('shop.home.index') }}">
-				<div class="m-auto block mx-auto bg-navyBlue text-white text-base w-max font-medium py-[11px] px-[43px] rounded-[18px] text-center cursor-pointer">
+				<div class="block w-max mx-auto m-auto py-[11px] px-[43px] bg-navyBlue rounded-[18px] text-white text-basefont-medium text-center cursor-pointer">
              		@lang('shop::app.checkout.cart.index.continue-shopping')
 				</div> 
 			</a>

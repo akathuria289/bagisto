@@ -3,19 +3,25 @@
     :has-feature="false"
     :has-footer="false"
 >
+    {{-- Page Title --}}
+    <x-slot:title>
+        @lang('shop::app.customers.reset-password.title')
+    </x-slot>
+
     <div class="container mt-20 max-1180:px-[20px]">
         {{-- Company Logo --}}
-        <div class="flex items-center gap-x-[54px] max-[1180px]:gap-x-[35px]">
+        <div class="flex gap-x-[54px] items-center max-[1180px]:gap-x-[35px]">
             <a
-                href="{{ route('shop.home.index') }}" 
-                class="bs-logo bg-[position:-5px_-3px] bs-main-sprite w-[131px] h-[29px] inline-block m-[0_auto_20px_auto]"
+                href="{{ route('shop.home.index') }}"
+                class="m-[0_auto_20px_auto]"
             >
+                <img src="{{ bagisto_asset('images/logo.svg') }}">
             </a>
         </div>
-        
+
         {{-- Form Container --}}
         <div
-            class="w-full max-w-[870px] m-auto border border-[#E9E9E9] px-[90px] py-[60px] rounded-[12px] max-md:px-[30px] max-md:py-[30px]"
+            class="w-full max-w-[870px] m-auto px-[90px] py-[60px] border border-[#E9E9E9] rounded-[12px] max-md:px-[30px] max-md:py-[30px]"
         >
             <h1 class="text-[40px] font-dmserif max-sm:text-[25px]">
                 @lang('shop::app.customers.reset-password.title')
@@ -23,29 +29,30 @@
 
             {!! view_render_event('bagisto.shop.customers.reset_password.before') !!}
 
-            <div class="rounded mt-[60px] max-sm:mt-[30px]">
+            <div class="mt-[60px] rounded max-sm:mt-[30px]">
                 <x-shop::form :action="route('shop.customers.reset_password.store')" >
                     <x-shop::form.control-group.control
                         type="hidden"
                         name="token"
-                        :value="$token"       
+                        :value="$token"
                     >
                     </x-shop::form.control-group.control>
 
                     {!! view_render_event('bagisto.shop.customers.reset_password_form_controls.before') !!}
 
                     <x-shop::form.control-group class="mb-4">
-                        <x-shop::form.control-group.label>
+                        <x-shop::form.control-group.label class="required">
                             @lang('shop::app.customers.reset-password.email')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="email"
                             name="email"
+                            class="!p-[20px_25px] rounded-lg"
                             :value="old('email')"
-                            id="email" 
+                            id="email"
                             rules="required|email"
-                            label="Email"
+                            :label="trans('shop::app.customers.reset-password.email')"
                             placeholder="email@example.com"
                         >
                         </x-shop::form.control-group.control>
@@ -57,18 +64,19 @@
                     </x-shop::form.control-group>
 
                     <x-shop::form.control-group class="mb-6">
-                        <x-shop::form.control-group.label>
+                        <x-shop::form.control-group.label class="required">
                             @lang('shop::app.customers.reset-password.password')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="password"
                             name="password"
+                            class="!p-[20px_25px] rounded-lg"
                             value=""
                             ref="password"
                             rules="required|min:6"
-                            label="Password"
-                            placeholder="Password"
+                            :label="trans('shop::app.customers.reset-password.password')"
+                            :placeholder="trans('shop::app.customers.reset-password.password')"
                         >
                         </x-shop::form.control-group.control>
 
@@ -86,10 +94,11 @@
                         <x-shop::form.control-group.control
                             type="password"
                             name="password_confirmation"
+                            class="!p-[20px_25px] rounded-lg"
                             value=""
                             rules="confirmed:@password"
-                            label="Confirm Password"
-                            placeholder="Confirm Password"
+                            :label="trans('shop::app.customers.reset-password.confirm-password')"
+                            :placeholder="trans('shop::app.customers.reset-password.confirm-password')"
                         >
                         </x-shop::form.control-group.control>
 
@@ -103,7 +112,7 @@
 
                     <div class="flex gap-[36px] flex-wrap mt-[30px] items-center">
                         <button
-                            class="m-0 ml-[0px] block mx-auto w-full bg-navyBlue text-white text-[16px] max-w-[374px] font-medium py-[16px] px-[43px] rounded-[18px] text-center"
+                            class="bs-primary-button block w-full max-w-[374px] py-[16px] px-[43px] m-0 ml-[0px] mx-auto rounded-[18px] text-[16px] text-center"
                             type="submit"
                         >
                             @lang('shop::app.customers.reset-password.submit-btn-title')

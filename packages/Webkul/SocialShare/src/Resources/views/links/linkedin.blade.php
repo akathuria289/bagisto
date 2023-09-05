@@ -1,19 +1,19 @@
 @php
     $detailes = [
         'mini'    => 'true',
-        'url'     => route('shop.productOrCategory.index', $product->url_key),
+        'url'     => route('shop.product_or_category.index', $product->url_key),
         'title'   => $product->name,
         'summary' => $message
     ];
 
-    $linkedin_url = 'https://www.linkedin.com/shareArticle?' . http_build_query($detailes);
+    $linkedinURL = 'https://www.linkedin.com/shareArticle?' . http_build_query($detailes);
 @endphp
 
 <v-linkedin-share></v-linkedin-share>
 
 @push('scripts')
     <script type="text/x-template" id="v-linkedin-share-template">
-        <li class="bb-social-share__item bb-social--linkedin">
+        <li class="transition-all hover:opacity-[0.8]">
             <a 
                 href="#" 
                 @click="openSharePopup"
@@ -29,7 +29,7 @@
 
             data: function () {
                 return {
-                    shareUrl: '{{ $linkedin_url }}'
+                    shareUrl: '{{ $linkedinURL }}'
                 }
             },
 

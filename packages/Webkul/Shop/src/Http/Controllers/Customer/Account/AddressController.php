@@ -3,27 +3,18 @@
 namespace Webkul\Shop\Http\Controllers\Customer\Account;
 
 use Illuminate\Support\Facades\Event;
-use Webkul\Customer\Repositories\CustomerAddressRepository;
 use Webkul\Shop\Http\Controllers\Controller;
+use Webkul\Customer\Repositories\CustomerAddressRepository;
 use Webkul\Shop\Http\Requests\Customer\AddressRequest;
 
 class AddressController extends Controller
 {
     /**
-     * Current customer.
-     *
-     * @var \Webkul\Customer\Models\Customer
-     */
-    protected $customer;
-
-    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(
-        protected CustomerAddressRepository $customerAddressRepository
-    ) {
+    public function __construct(protected CustomerAddressRepository $customerAddressRepository) {
     }
 
     /**
@@ -43,9 +34,7 @@ class AddressController extends Controller
      */
     public function create()
     {
-        return view('shop::customers.account.addresses.create', [
-            'defaultCountry' => config('app.default_country'),
-        ]);
+        return view('shop::customers.account.addresses.create');
     }
 
     /**
@@ -59,21 +48,23 @@ class AddressController extends Controller
 
         Event::dispatch('customer.addresses.create.before');
 
-        $customerAddress = $this->customerAddressRepository->create([
-            'company_name'    => $request->input('company_name'),
-            'first_name'      => $request->input('first_name'),
-            'last_name'       => $request->input('last_name'),
-            'vat_id'          => $request->input('vat_id'),
-            'address1'        => $request->input('address1'),
-            'country'         => $request->input('country'),
-            'state'           => $request->input('state'),
-            'city'            => $request->input('city'),
-            'postcode'        => $request->input('postcode'),
-            'phone'           => $request->input('phone'),
+        $data = array_merge(request()->only([
+            'company_name',
+            'first_name',
+            'last_name',
+            'vat_id',
+            'address1',
+            'country',
+            'state',
+            'city',
+            'postcode',
+            'default_address',
+        ]), [
             'customer_id'     => $customer->id,
             'address1'        => implode(PHP_EOL, array_filter($request->input('address1'))),
-            'default_address' => ! $customer->addresses->count(),
         ]);
+
+        $customerAddress = $this->customerAddressRepository->create($data);
 
         Event::dispatch('customer.addresses.create.after', $customerAddress);
 
@@ -94,8 +85,6 @@ class AddressController extends Controller
             'customer_id' => auth()->guard('customer')->id(),
         ]);
 
-        $address['defaultCountry'] = config('app.default_country');
-
         if (! $address) {
             abort(404);
         }
@@ -114,26 +103,29 @@ class AddressController extends Controller
         $customer = auth()->guard('customer')->user();
 
         if (! $customer->addresses()->find($id)) {
-            session()->flash('warning', trans('shop::app.security-warning'));
+            session()->flash('warning', trans('shop::app.customers.account.addresses.security-warning'));
 
             return redirect()->route('shop.customers.account.addresses.index');
         }
 
         Event::dispatch('customer.addresses.update.before', $id);
 
-        $customerAddress = $this->customerAddressRepository->update([
-            'company_name' => $request->input('company_name'),
-            'first_name'   => $request->input('first_name'),
-            'last_name'    => $request->input('last_name'),
-            'vat_id'       => $request->input('vat_id'),
-            'address1'     => $request->input('address1'),
-            'country'      => $request->input('country'),
-            'state'        => $request->input('state'),
-            'city'         => $request->input('city'),
-            'postcode'     => $request->input('postcode'),
-            'phone'        => $request->input('phone'),
-            'address1'     => implode(PHP_EOL, array_filter($request->input('address1'))),
-        ], $id);
+        $data = array_merge(request()->only([
+            'company_name',
+            'first_name',
+            'last_name',
+            'vat_id',
+            'address1',
+            'country',
+            'state',
+            'city',
+            'postcode',
+            'phone'
+        ]), [
+            'address1' => implode(PHP_EOL, array_filter($request->input('address1'))),
+        ]);
+
+        $customerAddress = $this->customerAddressRepository->update($data, $id);
 
         Event::dispatch('customer.addresses.update.after', $customerAddress);
 

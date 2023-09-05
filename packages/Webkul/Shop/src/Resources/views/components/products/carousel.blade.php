@@ -10,17 +10,17 @@
     <script type="text/x-template" id="v-products-carousel-template">
         <div class="container mt-20 max-lg:px-[30px] max-sm:mt-[30px]" v-if="! isLoading && products.length">
             <div class="flex justify-between">
-                <h3 class="text-[30px] max-sm:text-[25px] font-dmserif" v-text="title"></h3>
+                <h3 class="text-[30px] font-dmserif max-sm:text-[25px]" v-text="title"></h3>
 
-                <div class="flex justify-between items-center gap-8">
+                <div class="flex gap-8 justify-between items-center">
                     <span
-                        class="icon-arrow-left-stylish text-[24px] inline-block cursor-pointer"
+                        class="icon-arrow-left-stylish rtl:icon-arrow-right-stylish inline-block text-[24px] cursor-pointer"
                         @click="swipeLeft"
                     >
                     </span>
 
                     <span
-                        class="icon-arrow-right-stylish text-[24px] inline-block cursor-pointer"
+                        class="icon-arrow-right-stylish rtl:icon-arrow-left-stylish inline-block text-[24px] cursor-pointer"
                         @click="swipeRight"
                     >
                     </span>
@@ -29,7 +29,7 @@
 
             <div
                 ref="swiperContainer"
-                class="flex gap-8 mt-[60px] overflow-auto scroll-smooth scrollbar-hide max-sm:mt-[20px]"
+                class="flex gap-8 [&>*]:flex-[0] mt-[40px] overflow-auto scroll-smooth scrollbar-hide max-sm:mt-[20px]"
             >
                 <x-shop::products.card
                     class="min-w-[291px]"
@@ -40,7 +40,7 @@
 
             <a
                 :href="navigationLink"
-                class="block mx-auto text-navyBlue text-base w-max font-medium py-[11px] px-[43px] border rounded-[18px] border-navyBlue bg-white mt-[60px] text-center"
+                class="bs-secondary-button block w-max mt-[60px] mx-auto py-[11px] px-[43px] rounded-[18px] text-base text-center"
                 v-if="navigationLink"
             >
                 @lang('shop::app.components.products.carousel.view-all')

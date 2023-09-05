@@ -1,22 +1,29 @@
 <x-shop::layouts.account>
+    {{-- Page Title --}}
+    <x-slot:title>
+        @lang('shop::app.customers.account.reviews.title')
+    </x-slot>
+
+    {{-- Breadcrumbs --}}
     @section('breadcrumbs')
         <x-shop::breadcrumbs name="reviews"></x-shop::breadcrumbs>
     @endSection
 
     <div class="flex-auto">
-        <div class="max-lg:hidden">
+        <div class="max-md:max-w-full">
             <h2 class="text-[26px] font-medium">
                 @lang('shop::app.customers.account.reviews.title')
             </h2>
 
             @if (! $reviews->isEmpty())
-                <div class="grid mt-[60px] gap-[20px] max-1060:grid-cols-[1fr]">
+                {{-- Review Information --}}
+                <div class="grid gap-[20px] mt-[60px] max-1060:grid-cols-[1fr]">
                     @foreach($reviews as $review)
                         <a
-                            href="{{ route('shop.productOrCategory.index', $review->product->url_key) }}"
+                            href="{{ route('shop.product_or_category.index', $review->product->url_key) }}"
                             id="{{ $review->product_id }}"
                         >
-                            <div class="flex gap-[20px] border border-[#e5e5e5] rounded-[12px] p-[25px] max-sm:flex-wrap">
+                            <div class="flex gap-[20px] p-[25px] border border-[#e5e5e5] rounded-[12px] max-sm:flex-wrap">
                                 @php $image = product_image()->getGalleryImages($review);@endphp
 
                                 <div class="min-h-[100px] min-w-[100px] max-sm:hidden">
@@ -33,19 +40,17 @@
                                         </p>
 
                                         <div class="flex gap-[10px] items-center">
-                                            <x-shop::products.star-rating 
-                                                ::name="{{ json_encode($review->name) }}" 
-                                                ::value="{{ json_encode($review->rating) }}"
-                                            >
-                                            </x-shop::products.star-rating>
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <span class="icon-star-fill text-[24px] {{ $review->rating >= $i ? 'text-[#ffb600]' : 'text-[#7d7d7d]' }}"></span>
+                                            @endfor
                                         </div>
                                     </div>
 
-                                    <p class="text-[14px] font-medium mt-[10px] max-sm:text-[12px]">
+                                    <p class="mt-[10px] text-[14px] font-medium max-sm:text-[12px]">
                                         {{ $review->created_at }}
                                     </p>
 
-                                    <p class="text-[16px] text-[#7D7D7D] mt-[20px] max-sm:text-[12px]">
+                                    <p class="mt-[20px] text-[16px] text-[#7D7D7D] max-sm:text-[12px]">
                                         {{ $review->comment }}
                                     </p>
                                 </div>
@@ -54,7 +59,8 @@
                     @endforeach
                 </div>
             @else
-                <div class="grid items-center justify-items-center w-max m-auto h-[476px] place-content-center">
+                {{-- Review Empty Page --}}
+                <div class="grid items-center justify-items-center place-content-center w-[100%] m-auto h-[476px] text-center">
                     <img class="" src="{{ bagisto_asset('images/review.png') }}" alt="" title="">
 
                     <p class="text-[20px]">

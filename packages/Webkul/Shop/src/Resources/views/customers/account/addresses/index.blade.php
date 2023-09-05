@@ -1,8 +1,13 @@
 <x-shop::layouts.account>
+    {{-- Page Title --}}
+    <x-slot:title>
+        @lang('shop::app.customers.account.addresses.add-address')
+    </x-slot>
+    
+    {{-- Breadcrumbs --}}
     @section('breadcrumbs')
         <x-shop::breadcrumbs name="addresses"></x-shop::breadcrumbs>
     @endSection
-
     <div class="flex justify-between items-center">
         <div class="">
             <h2 class="text-[26px] font-medium">
@@ -12,16 +17,19 @@
 
         <a
             href="{{ route('shop.customers.account.addresses.create') }}"
-            class="flex items-center gap-x-[10px] border border-[#E9E9E9] rounded-[12px] py-[12px] px-[20px] cursor-pointer"
+            class="bs-secondary-button flex gap-x-[10px] items-center py-[12px] px-[20px] border-[#E9E9E9] font-normal"
         >
+            <span class="icon-location text-[24px]"></span>
+
             @lang('shop::app.customers.account.addresses.add-address') 
         </a>
     </div>
 
     @if (! $addresses->isEmpty())
-        <div class="grid mt-[60px] gap-[20px] grid-cols-2 max-1060:grid-cols-[1fr]">
+        {{-- Address Information --}}
+        <div class="grid grid-cols-2 gap-[20px] mt-[60px] max-1060:grid-cols-[1fr]">
             @foreach ($addresses as $address)
-                <div class="border border-[#e5e5e5] rounded-[12px] p-[20px] max-sm:flex-wrap">
+                <div class="p-[20px] border border-[#e5e5e5] rounded-[12px] max-sm:flex-wrap">
                     <div class="flex justify-between items-center">
                         <p class="text-[16px] font-medium">
                             {{ $address->company_name }}
@@ -31,15 +39,16 @@
 
                             @if ($address->default_address)
                                 <div 
-                                    class="m-0 ml-[0px] block mx-auto bg-navyBlue text-white w-max font-medium p-[5px] rounded-[10px] text-center text-[12px]"
+                                    class="block w-max m-0 ml-[0px] mx-auto p-[5px] rounded-[10px] bg-navyBlue text-[12px] text-white font-medium text-center"
                                 >
                                     @lang('shop::app.customers.account.addresses.default-address') 
                                 </div>
                             @endif
 
-                            <x-shop::dropdown>
+                            {{-- Dropdown Actions --}}
+                            <x-shop::dropdown position="bottom-right">
                                 <x-slot:toggle>
-                                    <span class="icon-more text-[24px] text-[#7D7D7D] cursor-pointer"></span>
+                                    <button class="icon-more px-[6px] py-[4px] rounded-[6px] text-[24px] text-[#7D7D7D] cursor-pointer transition-all hover:bg-gray-100 hover:text-black focus:bg-gray-100 focus:text-black"></button>
                                 </x-slot:toggle>
 
                                 <x-slot:menu>
@@ -85,7 +94,8 @@
             @endforeach
         </div>
     @else
-        <div class="grid items-center justify-items-center w-max m-auto h-[476px] place-content-center">
+        {{-- Address Empty Page --}}
+        <div class="grid items-center justify-items-center place-content-center w-[100%] m-auto h-[476px] text-center">
             <img 
                 class="" 
                 src="{{ bagisto_asset('images/no-address.png') }}" 

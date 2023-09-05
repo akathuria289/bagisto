@@ -2,8 +2,9 @@
 
 namespace Webkul\Core;
 
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
 use Webkul\Core\Models\Channel;
 use Webkul\Core\Repositories\ChannelRepository;
 use Webkul\Core\Repositories\CoreConfigRepository;
@@ -191,12 +192,26 @@ class Core
 
     /**
      * Returns default channel locale code.
-     *
-     * @return \Webkul\Core\Contracts\locale
      */
     public function getDefaultChannelLocaleCode(): string
     {
         return $this->getDefaultChannel()->default_locale->code;
+    }
+
+    /**
+     * Get channel code from request.
+     *
+     * @return string
+     */
+    public function getRequestedChannel()
+    {
+        $code = request()->query('channel');
+
+        if ($code) {
+            return $this->channelRepository->findOneByField('code', $code);
+        }
+
+        return $this->getCurrentChannel();
     }
 
     /**
@@ -224,6 +239,22 @@ class Core
     public function getChannelName($channel): string
     {
         return $channel->name ?? $channel->translate(app()->getLocale())->name ?? $channel->translate(config('app.fallback_locale'))->name;
+    }
+
+    /**
+     * Get locale from request.
+     *
+     * @return string
+     */
+    public function getRequestedLocale()
+    {
+        $code = request()->query('locale');
+
+        if ($code) {
+            return $this->localeRepository->findOneByField('code', $code);
+        }
+
+        return $this->getCurrentLocale();
     }
 
     /**
@@ -851,7 +882,7 @@ class Core
      */
     public function countries()
     {
-        return $this->countryRepository->all();
+        return DB::table('countries')->get();
     }
 
     /**
@@ -887,8 +918,8 @@ class Core
     {
         $collection = [];
 
-        foreach ($this->countryStateRepository->all() as $state) {
-            $collection[$state->country_code][] = $state->toArray();
+        foreach (DB::table('country_states')->get() as $state) {
+            $collection[$state->country_code][] = $state;
         }
 
         return $collection;

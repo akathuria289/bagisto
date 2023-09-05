@@ -13,6 +13,7 @@
             
             <p class="text-[16px] max-sm:text-[14px] max-sm:font-medium font-medium">
                 <span v-if="! isCouponApplied">
+                    <!-- Apply Coupon modal -->
                     <x-shop::modal ref="couponModel">
                         <x-slot:toggle>
                             <span class="text-[#0A49A7] cursor-pointer">
@@ -38,9 +39,9 @@
                                             <x-shop::form.control-group.control
                                                 type="text"
                                                 name="code"
-                                                class="text-[14px] appearance-none border rounded-[12px] w-full py-[20px] px-[25px] focus:outline-none focus:shadow-outline"
-                                                placeholder="Enter your code"
+                                                class="py-[20px] px-[25px]"
                                                 rules="required"
+                                                :placeholder="trans('shop::app.checkout.onepage.coupon.enter-your-code')"
                                                 v-model="code"
                                             >
                                             </x-shop::form.control-group.control>
@@ -67,10 +68,10 @@
                                                 </p>
     
                                                 <button
-                                                    class="block flex-auto bg-navyBlue text-white text-base w-max font-medium py-[11px] px-[43px] rounded-[18px] text-center cursor-pointer max-sm:text-[14px] max-sm:px-[25px]"
+                                                    class="block flex-auto w-max py-[11px] px-[43px] bg-navyBlue rounded-[18px] text-white text-base font-medium text-center cursor-pointer max-sm:text-[14px] max-sm:px-[25px]"
                                                     type="submit"
                                                 >
-                                                   @lang('shop::app.checkout.onepage.coupon.save')
+                                                   @lang('shop::app.checkout.onepage.coupon.button-title')
                                                 </button>
                                             </div>
                                         </div>
@@ -82,10 +83,10 @@
                 </span>
 
                 <div 
-                    class="text-[12px] font-small flex justify-between items-center"
+                    class="flex justify-between items-center text-[12px] font-small"
                     v-else
                 >
-                    <p class="text-[12px] mr-2">
+                    <p class="mr-2 text-[12px]">
                         @lang('shop::app.checkout.onepage.coupon.applied')
                     </p>
                     
@@ -131,7 +132,7 @@
 
                             this.$refs.couponModel.toggle();
                         })
-                        .catch(error) => {
+                        .catch((error) => {
                             if ([400, 422].includes(error.response.request.status)) {
                                 this.$emitter.emit('add-flash', { type: 'warning', message: error.response.data.message });
 
@@ -143,6 +144,7 @@
                             this.$emitter.emit('add-flash', { type: 'error', message: error.response.data.message });
 
                             this.$refs.couponModel.toggle();
+                        });
                 },
 
                 destroyCoupon() {

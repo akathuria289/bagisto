@@ -2,44 +2,44 @@
 
 namespace Webkul\Admin\Http\Controllers;
 
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Webkul\Admin\Services\DashboardService;
 
 class DashboardController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    protected array $_config;
-
-    /**
      * Create a controller instance.
-     *
-     * @param DashboardService $dashboardService
      */
-    public function __construct(
-        protected DashboardService $dashboardService
-    )
+    public function __construct(protected DashboardService $dashboardService)
     {
-        $this->_config = request('_config');
     }
 
     /**
      * Dashboard page.
      */
-    public function index(): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
+    public function index()
     {
+        if (request()->ajax()) {
+            $statistics = $this->dashboardService
+                ->setStartDate(request()->date('start'))
+                ->setEndDate(request()->date('end'))
+                ->getStatistics();
+
+            return response()->json([
+                'statistics' => $statistics,
+                'startDate'  => $this->dashboardService->getStartDate()->format('d M'),
+                'endDate'    => $this->dashboardService->getEndDate()->format('d M'),
+            ]);
+        }
+
         $statistics = $this->dashboardService
             ->setStartDate(request()->date('start'))
             ->setEndDate(request()->date('end'))
             ->getStatistics();
 
-        return view($this->_config['view'], compact('statistics'))
+        return view('admin::dashboard.index', compact('statistics'))
             ->with([
                 'startDate' => $this->dashboardService->getStartDate(),
-                'endDate' => $this->dashboardService->getEndDate()
+                'endDate'   => $this->dashboardService->getEndDate(),
             ]);
     }
 }

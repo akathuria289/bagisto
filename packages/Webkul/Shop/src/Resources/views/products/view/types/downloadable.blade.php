@@ -3,7 +3,7 @@
 
     @if ($product->downloadable_samples->count())
         <div class="sample-list mb-[25px] mt-[30px]">
-            <h3 class="font-medium mb-[15px]">
+            <h3 class="mb-[15px] font-medium">
                 @lang('shop::app.products.view.type.downloadable.samples')
             </h3>
 
@@ -24,7 +24,7 @@
     @endif
 
     @if ($product->downloadable_links->count())
-        <h3 class="font-medium mt-[30px] mb-[15px]">
+        <h3 class="mt-[30px] mb-[15px] font-medium">
             @lang('shop::app.products.view.type.downloadable.links')
         </h3>
 
@@ -65,6 +65,17 @@
                     </div>
                 </div>
             @endforeach
+
+            <v-error-message
+                name="links[]"
+                v-slot="{ message }"
+            >
+                <p
+                    class="mt-1 text-red-500 text-xs italic"
+                    v-text="message"
+                >
+                </p>
+            </v-error-message>
         </div>
     @endif
 

@@ -1,14 +1,50 @@
 {!! view_render_event('bagisto.shop.layout.footer.before') !!}
 
-<footer class=" bg-lightOrange mt-[36px] max-sm:mt-[30px]">
-    <div class="flex justify-between p-[60px] gap-x-[25px] gap-y-[30px] max-1060:flex-wrap max-1060:flex-col-reverse max-sm:px-[15px]">
+{{--
+    The category repository is injected directly here because there is no way
+    to retrieve it from the view composer, as this is an anonymous component.
+--}}
+@inject('themeCustomizationRepository', 'Webkul\Shop\Repositories\ThemeCustomizationRepository')
+
+{{--
+    This code needs to be refactored to reduce the amount of PHP in the Blade
+    template as much as possible.
+--}}
+@php
+    $customization = $themeCustomizationRepository->findOneWhere([
+        'type'   => 'footer_links',
+        'status' => 1
+    ]); 
+@endphp
+
+<footer class="mt-[36px] bg-lightOrange  max-sm:mt-[30px]">
+    <div class="flex gap-x-[25px] gap-y-[30px] justify-between p-[60px] max-1060:flex-wrap max-1060:flex-col-reverse max-sm:px-[15px]">
         <div class="flex gap-[85px] items-start flex-wrap max-1180:gap-[25px] max-1060:justify-between">
-            {!! Blade::render(core()->getCurrentChannel()->footer_content) !!}
+            @isset($customization->options)
+                @foreach ($customization->options as $footerLinkSection)
+                    <ul class="grid gap-[20px] text-[14px]">
+                        @php
+                            usort($footerLinkSection, function ($a, $b) {
+                                return $a['sort_order'] - $b['sort_order'];
+                            });
+                        @endphp
+                        
+                        @foreach ($footerLinkSection as $link)
+                            <li>
+                                <a href="{{ $link['url'] }}">
+                                    {{ $link['title'] }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>    
+                @endforeach
+            @endisset
         </div>
 
+        {{-- News Letter subscription --}}
         @if(core()->getConfigData('customer.settings.newsletter.subscription'))
             <div class="grid gap-[10px]">
-                <p class="text-[30px] italic max-w-[288px] leading-[45px] text-navyBlue">
+                <p class="max-w-[288px] leading-[45px] text-[30px] italic text-navyBlue">
                     @lang('shop::app.components.layouts.footer.newsletter-text')
                 </p>
 
@@ -17,8 +53,8 @@
                 </p>
 
                 <x-shop::form
-                    :action="route('shop.subscribe')"
-                    class="rounded mt-[10px] max-sm:mt-[30px]"
+                    :action="route('shop.subscription.store')"
+                    class="mt-[10px] rounded max-sm:mt-[30px]"
                 >
                     <label for="organic-search" class="sr-only">Search</label>
 
@@ -26,8 +62,8 @@
 
                     <x-shop::form.control-group.control
                         type="email"
-                        name="subscriber_email"
-                        class="bg-[#F1EADF] w-[420px] max-w-full placeholder:text-black border-[2px] border-[#E9DECC] rounded-[12px] block px-[20px] py-[20px] text-gray-900 text-xs font-medium pr-[110px] max-1060:w-full"
+                        name="email"
+                        class=" blockw-[420px] max-w-full px-[20px] py-[20px] pr-[110px] bg-[#F1EADF] border-[2px] border-[#E9DECC] rounded-[12px] text-xs font-medium max-1060:w-full"
                         rules="required|email"
                         label="Email"
                         placeholder="email@example.com"
@@ -41,7 +77,7 @@
 
                         <button
                             type="submit"
-                            class="w-max px-[26px] py-[13px] bg-white rounded-[12px] text-[12px] font-medium absolute top-[8px] right-[8px] flex items-center"
+                            class=" absolute flex items-center top-[8px] w-max px-[26px] py-[13px] bg-white rounded-[12px] text-[12px] font-medium rtl:left-[8px] ltr:right-[8px]"
                         >
                             @lang('shop::app.components.layouts.footer.subscribe')
                         </button>

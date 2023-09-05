@@ -5,6 +5,7 @@ namespace Webkul\Shop\Http\Controllers\Customer\Account;
 use Webkul\Core\Traits\PDFHandler;
 use Webkul\Sales\Repositories\InvoiceRepository;
 use Webkul\Sales\Repositories\OrderRepository;
+use Webkul\Shop\DataGrids\OrderDataGrid;
 use Webkul\Shop\Http\Controllers\Controller;
 
 class OrderController extends Controller
@@ -20,7 +21,6 @@ class OrderController extends Controller
         protected OrderRepository $orderRepository,
         protected InvoiceRepository $invoiceRepository
     ) {
-        parent::__construct();
     }
 
     /**
@@ -30,11 +30,11 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = $this->orderRepository->findWhere([
-            'customer_id' => auth()->guard('customer')->id(),
-        ]);
+        if (request()->ajax()) {
+            return app(OrderDataGrid::class)->toJson();
+        }
 
-        return view('shop::customers.account.orders.index', compact('orders'));
+        return view('shop::customers.account.orders.index');
     }
 
     /**
@@ -61,9 +61,12 @@ class OrderController extends Controller
      */
     public function printInvoice($id)
     {
-        $invoice = $this->invoiceRepository->findOrFail($id);
+        $invoice = $this->invoiceRepository->findOneWhere([
+            'id'          => $id,
+            'customer_id' => auth()->guard('customer')->id(),
+        ]);
 
-        if ($invoice->order->customer_id !== auth()->guard('customer')->id()) {
+        if (! $invoice) {
             abort(404);
         }
 
@@ -84,7 +87,7 @@ class OrderController extends Controller
         $customer = auth()->guard('customer')->user();
 
         /* find by order id in customer's order */
-        $order = $customer->all_orders()->find($id);
+        $order = $customer->orders()->find($id);
 
         /* if order id not found then process should be aborted with 404 page */
         if (! $order) {

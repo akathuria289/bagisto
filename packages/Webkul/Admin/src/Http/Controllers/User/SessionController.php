@@ -7,23 +7,6 @@ use Webkul\Admin\Http\Controllers\Controller;
 class SessionController extends Controller
 {
     /**
-     * Contains route related configuration.
-     *
-     * @var array
-     */
-    protected $_config;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->_config = request('_config');
-    }
-
-    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\View\View
@@ -42,7 +25,7 @@ class SessionController extends Controller
 
         session()->put('url.intended', $intendedUrl);
 
-        return view($this->_config['view']);
+        return view('admin::users.sessions.create');
     }
 
     /**
@@ -60,20 +43,20 @@ class SessionController extends Controller
         $remember = request('remember');
 
         if (! auth()->guard('admin')->attempt(request(['email', 'password']), $remember)) {
-            session()->flash('error', trans('admin::app.users.users.login-error'));
+            session()->flash('error', trans('admin::app.settings.users.index.login-error'));
 
             return redirect()->back();
         }
 
         if (! auth()->guard('admin')->user()->status) {
-            session()->flash('warning', trans('admin::app.users.users.activate-warning'));
+            session()->flash('warning', trans('admin::app.settings.users.activate-warning'));
 
             auth()->guard('admin')->logout();
 
             return redirect()->route('admin.session.create');
         }
 
-        return redirect()->intended(route($this->_config['redirect']));
+        return redirect()->intended(route('admin.dashboard.index'));
     }
 
     /**
@@ -82,10 +65,10 @@ class SessionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy()
     {
         auth()->guard('admin')->logout();
 
-        return redirect()->route($this->_config['redirect']);
+        return redirect()->route('admin.session.create');
     }
 }

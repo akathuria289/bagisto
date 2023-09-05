@@ -11,7 +11,8 @@
 @pushOnce('scripts')
     <script type="text/x-template" id="v-checkout-addresses-template">
         <template v-if="isAddressLoading">
-            <x-shop::shimmer.checkout.onepage.address></x-shop::shimmer.checkout.onepage.address>
+            <!-- Onepage Shimmer Effect -->
+            <x-shop::shimmer.checkout.onepage.address/>
         </template>
         
         <template v-else>
@@ -129,7 +130,7 @@
                 },
 
                 getCountries() {
-                    this.$axios.get("{{ route('shop.countries') }}")
+                    this.$axios.get("{{ route('shop.api.core.countries') }}")
                         .then(response => {
                             this.countries = response.data.data;
                         })
@@ -137,7 +138,7 @@
                 },
 
                 getCountryStates() {
-                    this.$axios.get("{{ route('shop.countries.states') }}")
+                    this.$axios.get("{{ route('shop.api.core.states') }}")
                         .then(response => {
                             this.states = response.data.data;
                         })

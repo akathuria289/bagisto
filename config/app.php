@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -196,7 +195,6 @@ return [
          */
         Webkul\Admin\Providers\AdminServiceProvider::class,
         Webkul\Attribute\Providers\AttributeServiceProvider::class,
-        Webkul\BookingProduct\Providers\BookingProductServiceProvider::class,
         Webkul\CartRule\Providers\CartRuleServiceProvider::class,
         Webkul\CatalogRule\Providers\CatalogRuleServiceProvider::class,
         Webkul\Category\Providers\CategoryServiceProvider::class,
@@ -205,6 +203,7 @@ return [
         Webkul\Core\Providers\CoreServiceProvider::class,
         Webkul\Core\Providers\EnvValidatorServiceProvider::class,
         Webkul\Customer\Providers\CustomerServiceProvider::class,
+        Webkul\DataGrid\Providers\DataGridServiceProvider::class,
         Webkul\DebugBar\Providers\DebugBarServiceProvider::class,
         Webkul\Inventory\Providers\InventoryServiceProvider::class,
         Webkul\Marketing\Providers\MarketingServiceProvider::class,
@@ -221,7 +220,6 @@ return [
         Webkul\SocialShare\Providers\SocialShareServiceProvider::class,
         Webkul\Tax\Providers\TaxServiceProvider::class,
         Webkul\Theme\Providers\ThemeServiceProvider::class,
-        Webkul\Ui\Providers\UiServiceProvider::class,
         Webkul\User\Providers\UserServiceProvider::class,
     ])->toArray(),
 

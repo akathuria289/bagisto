@@ -86,7 +86,7 @@ class ProductForm extends FormRequest
             $validations = [];
 
             if (! isset($this->rules[$attribute->code])) {
-                array_push($validations, $attribute->is_required ? 'required' : 'nullable');
+                $validations[] = $attribute->is_required ? 'required' : 'nullable';
             } else {
                 $validations = $this->rules[$attribute->code];
             }
@@ -95,15 +95,17 @@ class ProductForm extends FormRequest
                 $attribute->type == 'text'
                 && $attribute->validation
             ) {
-                array_push($validations,
-                    $attribute->validation == 'decimal'
-                        ? new Decimal
-                        : $attribute->validation
-                );
+                if ($attribute->validation === 'decimal') {
+                    $validations[] = new Decimal;
+                } elseif ($attribute->validation === 'regex') {
+                    $validations[] = 'regex:' . $attribute->regex;
+                } else {
+                    $validations[] = $attribute->validation;
+                }
             }
 
             if ($attribute->type == 'price') {
-                array_push($validations, new Decimal);
+                $validations[] = new Decimal;
             }
 
             if ($attribute->is_unique) {
@@ -116,7 +118,7 @@ class ProductForm extends FormRequest
                             request($attribute->code)
                         )
                     ) {
-                        $fail(__('admin::app.response.already-taken', ['name' => ':attribute']));
+                        $fail(__('admin::app.catalog.products.index.already-taken', ['name' => ':attribute']));
                     }
                 });
             }
@@ -135,7 +137,7 @@ class ProductForm extends FormRequest
     public function messages()
     {
         return [
-            'variants.*.sku.unique' => __('admin::app.response.already-taken', ['name' => ':attribute']),
+            'variants.*.sku.unique' => __('admin::app.catalog.products.index.already-taken', ['name' => ':attribute']),
         ];
     }
 

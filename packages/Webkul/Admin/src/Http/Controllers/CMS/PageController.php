@@ -2,29 +2,23 @@
 
 namespace Webkul\Admin\Http\Controllers\CMS;
 
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
-use Webkul\Admin\DataGrids\CMSPageDataGrid;
-use Webkul\Admin\Http\Controllers\Controller;
 use Webkul\CMS\Repositories\CmsRepository;
+use Webkul\Admin\Http\Controllers\Controller;
+use Webkul\Admin\DataGrids\CMS\CMSPageDataGrid;
+use Webkul\Core\Http\Requests\MassDestroyRequest;
+
 
 class PageController extends Controller
 {
     /**
-     * To hold the request variables from route file.
-     *
-     * @var array
-     */
-    protected $_config;
-
-    /**
      * Create a new controller instance.
      *
-     * @param  \Webkul\CMS\Repositories\CmsRepository  $cmsRepository
      * @return void
      */
     public function __construct(protected CmsRepository $cmsRepository)
     {
-        $this->_config = request('_config');
     }
 
     /**
@@ -38,7 +32,7 @@ class PageController extends Controller
             return app(CMSPageDataGrid::class)->toJson();
         }
 
-        return view($this->_config['view']);
+        return view('admin::cms.index');
     }
 
     /**
@@ -48,7 +42,7 @@ class PageController extends Controller
      */
     public function create()
     {
-        return view($this->_config['view']);
+        return view('admin::cms.create');
     }
 
     /**
@@ -67,13 +61,23 @@ class PageController extends Controller
 
         Event::dispatch('cms.pages.create.before');
 
-        $page = $this->cmsRepository->create(request()->all());
+        $data = request()->only([
+            'page_title',
+            'channels',
+            'html_content',
+            'meta_title',
+            'url_key',
+            'meta_keywords',
+            'meta_description',
+        ]);
+
+        $page = $this->cmsRepository->create($data);
 
         Event::dispatch('cms.pages.create.after', $page);
 
-        session()->flash('success', trans('admin::app.response.create-success', ['name' => 'page']));
+        session()->flash('success', trans('admin::app.cms.create-success'));
 
-        return redirect()->route($this->_config['redirect']);
+        return redirect()->route('admin.cms.index');
     }
 
     /**
@@ -86,7 +90,7 @@ class PageController extends Controller
     {
         $page = $this->cmsRepository->findOrFail($id);
 
-        return view($this->_config['view'], compact('page'));
+        return view('admin::cms.edit', compact('page'));
     }
 
     /**
@@ -102,7 +106,7 @@ class PageController extends Controller
         $this->validate(request(), [
             $locale . '.url_key'      => ['required', new \Webkul\Core\Rules\Slug, function ($attribute, $value, $fail) use ($id) {
                 if (! $this->cmsRepository->isUrlKeyUnique($id, $value)) {
-                    $fail(trans('admin::app.response.already-taken', ['name' => 'Page']));
+                    $fail(trans('admin::app.cms.index.already-taken', ['name' => 'Page']));
                 }
             }],
             $locale . '.page_title'   => 'required',
@@ -112,62 +116,57 @@ class PageController extends Controller
 
         Event::dispatch('cms.pages.update.before', $id);
 
-        $page = $this->cmsRepository->update(request()->all(), $id);
+        $data = [
+            'en'       => request()->input('en'),
+            'channels' => request()->input('channels'),
+        ];
+
+        $page = $this->cmsRepository->update($data, $id);
 
         Event::dispatch('cms.pages.update.after', $page);
 
-        session()->flash('success', trans('admin::app.response.update-success', ['name' => 'Page']));
+        session()->flash('success', trans('admin::app.cms.update-success'));
 
-        return redirect()->route($this->_config['redirect']);
+        return redirect()->route('admin.cms.index');
     }
 
     /**
      * To delete the previously create CMS page.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResource
      */
-    public function delete($id)
+    public function delete($id): JsonResource
     {
-        try {
-            Event::dispatch('cms.pages.delete.before', $id);
+        Event::dispatch('cms.pages.delete.before', $id);
 
-            $this->cmsRepository->delete($id);
+        $this->cmsRepository->delete($id);
 
-            Event::dispatch('cms.pages.delete.after', $id);
+        Event::dispatch('cms.pages.delete.after', $id);
 
-            return response()->json(['message' => trans('admin::app.cms.pages.delete-success')]);
-        } catch (\Exception $e) {
-        }
-
-        return response()->json(['message' => trans('admin::app.cms.pages.delete-failure')], 500);
+        return new JsonResource(['message' => trans('admin::app.cms.delete-success')]);
     }
 
     /**
      * To mass delete the CMS resource from storage.
      *
-     * @return \Illuminate\Http\Response
+     * @param MassDestroyRequest $massDestroyRequest
+     * @return JsonResource
      */
-    public function massDelete()
+    public function massDelete(MassDestroyRequest $massDestroyRequest): JsonResource
     {
-        if (request()->isMethod('post')) {
-            $indexes = explode(',', request()->input('indexes'));
+        $indices = $massDestroyRequest->input('indices');
 
-            foreach ($indexes as $index) {
-                Event::dispatch('cms.pages.delete.before', $index);
+        foreach ($indices as $index) {
+            Event::dispatch('cms.pages.delete.before', $index);
 
-                $this->cmsRepository->delete($index);
+            $this->cmsRepository->delete($index);
 
-                Event::dispatch('cms.pages.delete.after', $index);
-            }
-
-            session()->flash('success', trans('admin::app.datagrid.mass-ops.delete-success', [
-                'resource' => 'CMS Pages',
-            ]));
-        } else {
-            session()->flash('warning', trans('admin::app.datagrid.mass-ops.no-resource'));
+            Event::dispatch('cms.pages.delete.after', $index);
         }
 
-        return redirect()->route('admin.cms.index');
+        return new JsonResource([
+            'message' => trans('admin::app.cms.index.datagrid.mass-delete-success')
+        ], 200);
     }
 }

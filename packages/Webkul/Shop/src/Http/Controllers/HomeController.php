@@ -2,18 +2,21 @@
 
 namespace Webkul\Shop\Http\Controllers;
 
-use Webkul\Product\Repositories\SearchRepository;
+use Webkul\Shop\Repositories\ThemeCustomizationRepository;
 
 class HomeController extends Controller
 {
+    /**
+     * Using const variable for status
+     */
+    const STATUS = 1;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(protected SearchRepository $searchRepository)
+    public function __construct(protected ThemeCustomizationRepository $themeCustomizationRepository)
     {
-        parent::__construct();
     }
 
     /**
@@ -23,7 +26,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view($this->_config['view']);
+        $customizations = $this->themeCustomizationRepository->orderBy('sort_order')->findWhere([
+            'status' => self::STATUS
+        ]);
+
+        return view('shop::home.index', compact('customizations'));
     }
 
     /**
@@ -34,15 +41,5 @@ class HomeController extends Controller
     public function notFound()
     {
         abort(404);
-    }
-
-    /**
-     * Upload image for product search with machine learning.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function upload()
-    {
-        return $this->searchRepository->uploadSearchImage(request()->all());
     }
 }

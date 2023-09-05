@@ -6,12 +6,13 @@
 
 @pushOnce('scripts')
     <script type="text/x-template" id="v-product-card-template">
+        <!-- Grid Card -->
         <div
-            class='grid gap-2.5 content-start relative {{ $attributes["class"] }}'
+            class='grid gap-2.5 content-start w-full relative'
             v-if="mode != 'list'"
         >
             <div class="relative overflow-hidden group max-w-[291px] max-h-[300px]">
-                <a :href="`{{ route('shop.productOrCategory.index', '') }}/${product.url_key}`">
+                <a :href="`{{ route('shop.product_or_category.index', '') }}/${product.url_key}`">
                     <x-shop::shimmer.image
                         class="relative after:content-[' '] after:block after:pb-[calc(100%+9px)] rounded-sm bg-[#F5F5F5] group-hover:scale-105 transition-all duration-300"
                         ::src="product.base_image.medium_image_url"
@@ -20,14 +21,14 @@
                 
                 <div class="action-items bg-black">
                     <p
-                        class="rounded-[44px] text-[#fff] text-[14px] px-[10px]  bg-[#E03935] inline-block absolute top-[20px] left-[20px]"
+                        class="inline-block absolute top-[20px] left-[20px] px-[10px]  bg-[#E03935] rounded-[44px] text-[#fff] text-[14px]"
                         v-if="product.on_sale"
                     >
                         @lang('shop::app.components.products.card.sale')
                     </p>
 
                     <p
-                        class="rounded-[44px] text-[#fff] text-[14px] px-[10px] bg-navyBlue inline-block absolute top-[20px] left-[20px]"
+                        class="inline-block absolute top-[20px] left-[20px] px-[10px] bg-navyBlue rounded-[44px] text-[#fff] text-[14px]"
                         v-else-if="product.is_new"
                     >
                         @lang('shop::app.components.products.card.new')
@@ -35,66 +36,69 @@
 
                     <div class="group-hover:bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <a
-                            class="flex justify-center items-center w-[30px] h-[30px] bg-white rounded-md cursor-pointer absolute top-[20px] right-[20px] icon-heart text-[25px]"
+                            class="flex justify-center items-center absolute top-[20px] right-[20px] w-[30px] h-[30px] bg-white rounded-md cursor-pointer text-[25px]"
+                            :class="product.is_wishlist ? 'icon-heart-fill' : 'icon-heart'"
                             @click="addToWishlist()"
                         >
                         </a>
 
                         <a
-                            class="flex justify-center items-center w-[30px] h-[30px] bg-white rounded-md cursor-pointer absolute top-[60px] right-[20px] icon-compare text-[25px]"
+                            class="icon-compare flex justify-center items-center w-[30px] h-[30px] absolute top-[60px] right-[20px] bg-white rounded-md cursor-pointer text-[25px]"
                             @click="addToCompare(product.id)"
                         >
                         </a>
 
                         <a
-                            class="rounded-xl bg-white text-navyBlue text-xs w-max font-medium py-[11px] px-[43px] cursor-pointer absolute bottom-[15px] left-[50%] -translate-x-[50%] translate-y-[54px] group-hover:translate-y-0 transition-all duration-300"
+                            class="absolute bottom-[15px] left-[50%] py-[11px] px-[43px] bg-white rounded-xl text-navyBlue text-xs w-max font-medium cursor-pointer -translate-x-[50%] translate-y-[54px] group-hover:translate-y-0 transition-all duration-300"
                             @click="addToCart()"
                         >
-                            @lang('shop::app.components.products.add-to-cart')
+                            @lang('shop::app.components.products.card.add-to-cart')
                         </a>
                     </div>
                 </div>
             </div>
 
-            <div class="grid gap-2.5 content-start">
+            <div class="grid gap-2.5 content-start max-w-[291px]">
                 <p class="text-base" v-text="product.name"></p>
 
                 <div
-                    class="flex font-semibold gap-2.5 text-lg"
+                    class="flex gap-2.5 font-semibold text-lg"
                     v-html="product.price_html"
                 >
                 </div>
 
-                <div class="flex gap-4 mt-[8px]">
-                    <span class="rounded-full w-[30px] h-[30px] block cursor-pointer bg-[#B5DCB4]"></span>
+                <!-- Needs to implement that in future -->
+                <div class="hidden flex gap-4 mt-[8px]">
+                    <span class="block w-[30px] h-[30px] bg-[#B5DCB4] rounded-full cursor-pointer"></span>
 
-                    <span class="rounded-full w-[30px] h-[30px] block cursor-pointer bg-[#5C5C5C]"></span>
+                    <span class="block w-[30px] h-[30px] bg-[#5C5C5C] rounded-full cursor-pointer"></span>
                 </div>
             </div>
         </div>
 
+        <!-- List Card -->
         <div
             class="flex gap-[15px] grid-cols-2 max-w-max relative max-sm:flex-wrap"
             v-else
         >
-            <div class="relative overflow-hidden group max-w-[250px] max-h-[258px]"> 
-                <a :href="`{{ route('shop.productOrCategory.index', '') }}/${product.url_key}`">
+            <div class="relative max-w-[250px] max-h-[258px] overflow-hidden group"> 
+                <a :href="`{{ route('shop.product_or_category.index', '') }}/${product.url_key}`">
                     <x-shop::shimmer.image
-                        class="relative after:content-[' '] after:block after:pb-[calc(100%+9px)] rounded-sm bg-[#F5F5F5] group-hover:scale-105 transition-all duration-300"
+                        class="min-w-[250px] relative after:content-[' '] after:block after:pb-[calc(100%+9px)] rounded-sm bg-[#F5F5F5] group-hover:scale-105 transition-all duration-300"
                         ::src="product.base_image.medium_image_url"
                     ></x-shop::shimmer.image>
                 </a>
             
                 <div class="action-items bg-black"> 
                     <p
-                        class="rounded-[44px] text-[#fff] text-[14px] px-[10px]  bg-[#E03935] inline-block absolute top-[20px] left-[20px]"
+                        class="inline-block absolute top-[20px] left-[20px] px-[10px] bg-[#E03935] rounded-[44px] text-[#fff] text-[14px]"
                         v-if="product.on_sale"
                     >
                         @lang('shop::app.components.products.card.sale')
                     </p>
 
                     <p
-                        class="rounded-[44px] text-[#fff] text-[14px] px-[10px] bg-navyBlue inline-block absolute top-[20px] left-[20px]"
+                        class="inline-block absolute top-[20px] left-[20px] px-[10px] bg-navyBlue rounded-[44px] text-[#fff] text-[14px]"
                         v-else-if="product.is_new"
                     >
                         @lang('shop::app.components.products.card.new')
@@ -102,13 +106,14 @@
 
                     <div class="group-hover:bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <span 
-                            class=" flex justify-center items-center w-[30px] h-[30px] bg-white rounded-md cursor-pointer absolute top-[20px] right-[20px] icon-heart text-[25px]"
+                            class="flex justify-center items-center absolute top-[20px] right-[20px] w-[30px] h-[30px] bg-white rounded-md text-[25px] cursor-pointer"
+                            :class="product.is_wishlist ? 'icon-heart-fill' : 'icon-heart'"
                             @click="addToWishlist()"
                         >
                         </span> 
                         
                         <span 
-                            class=" flex justify-center items-center w-[30px] h-[30px] bg-white rounded-md cursor-pointer absolute top-[60px] right-[20px] icon-compare text-[25px]"
+                            class="icon-compare flex justify-center items-center absolute top-[60px] right-[20px] w-[30px] h-[30px] bg-white rounded-md text-[25px] cursor-pointer"
                             @click="addToCompare(product.id)"
                         >
                         </span>
@@ -129,11 +134,12 @@
                 >   
                 </div> 
 
-                <div class="flex gap-4"> 
-                    <span class="rounded-full w-[30px] h-[30px] block cursor-pointer bg-[#B5DCB4]">
+                <!-- Needs to implement that in future -->
+                <div class="hidden flex gap-4"> 
+                    <span class="block w-[30px] h-[30px] rounded-full bg-[#B5DCB4]">
                     </span> 
 
-                    <span class="rounded-full w-[30px] h-[30px] block cursor-pointer bg-[#5C5C5C]">
+                    <span class="block w-[30px] h-[30px] rounded-full bg-[#5C5C5C]">
                     </span> 
                 </div> 
                 
@@ -150,10 +156,10 @@
                 </p>
             
                 <div 
-                    class="bs-primary-button px-[30px] py-[10px]"
+                    class="bs-primary-button px-[30px] py-[10px] whitespace-nowrap"
                     @click="addToCart()"
                 >
-                    @lang('shop::app.components.products.add-to-cart')
+                    @lang('shop::app.components.products.card.add-to-cart')
                 </div> 
             </div> 
         </div>
@@ -178,6 +184,8 @@
                                 product_id: this.product.id
                             })
                             .then(response => {
+                                this.product.is_wishlist = ! this.product.is_wishlist;
+                                
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.data.message });
                             })
                             .catch(error => {});
@@ -221,14 +229,14 @@
 
                             localStorage.setItem('compare_items', JSON.stringify(items));
 
-                            this.$emitter.emit('add-flash', { type: 'success', message: '@lang('Item added successfully to the compare list')' });
+                            this.$emitter.emit('add-flash', { type: 'success', message: "{{ trans('shop::app.components.products.card.add-to-compare') }}" });
                         } else {
-                            this.$emitter.emit('add-flash', { type: 'warning', message: '@lang('Item is already added to compare list')' });
+                            this.$emitter.emit('add-flash', { type: 'warning', message: "{{ trans('shop::app.components.products.card.already-in-compare') }}" });
                         }
                     } else {
                         localStorage.setItem('compare_items', JSON.stringify([productId]));
                             
-                        this.$emitter.emit('add-flash', { type: 'success', message: '@lang('Item added successfully to the compare list')' });
+                        this.$emitter.emit('add-flash', { type: 'success', message: "{{ trans('shop::app.components.products.card.add-to-compare') }}" });
 
                     }
                 },

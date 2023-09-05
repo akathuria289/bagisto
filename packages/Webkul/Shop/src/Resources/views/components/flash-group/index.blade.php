@@ -5,7 +5,13 @@
         <transition-group
             tag='div'
             name="flash-group"
-            class='grid gap-[10px] fixed top-[20px] right-[20px] z-[1]'
+            enter-from-class="ltr:translate-x-full rtl:-translate-x-full"
+            enter-active-class="transform transition ease-in-out duration-200"
+            enter-to-class="ltr:translate-x-0 rtl:-translate-x-0"
+            leave-from-class="ltr:translate-x-0 rtl:-translate-x-0"
+            leave-active-class="transform transition ease-in-out duration-200"
+            leave-to-class="ltr:translate-x-full rtl:-translate-x-full"
+            class='grid gap-[10px] fixed top-[20px] ltr:right-[20px] rtl:left-[20px] z-[1] justify-items-end'
         >
             <x-shop::flash-group.item></x-shop::flash-group.item>
         </transition-group>

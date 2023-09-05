@@ -2,18 +2,16 @@
 
 namespace Webkul\Shop\Http\Controllers\Customer;
 
-use Cookie;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Webkul\Core\Repositories\SubscribersListRepository;
-use Webkul\Customer\Repositories\CustomerGroupRepository;
-use Webkul\Customer\Repositories\CustomerRepository;
+use Cookie;
 use Webkul\Shop\Http\Controllers\Controller;
+use Webkul\Customer\Repositories\CustomerRepository;
+use Webkul\Customer\Repositories\CustomerGroupRepository;
+use Webkul\Core\Repositories\SubscribersListRepository;
 use Webkul\Shop\Http\Requests\Customer\RegistrationRequest;
-use Webkul\Shop\Mail\RegistrationEmail;
-use Webkul\Shop\Mail\SubscriptionEmail;
-use Webkul\Shop\Mail\VerificationEmail;
+use Webkul\Shop\Mail\Customer\EmailVerificationNotification;
 
 class RegistrationController extends Controller
 {
@@ -27,7 +25,8 @@ class RegistrationController extends Controller
         protected CustomerRepository $customerRepository,
         protected CustomerGroupRepository $customerGroupRepository,
         protected SubscribersListRepository $subscriptionRepository
-    ) {
+    )
+    {
     }
 
     /**
@@ -47,81 +46,45 @@ class RegistrationController extends Controller
      */
     public function store(RegistrationRequest $registrationRequest)
     {
-        $data = array_merge(request()->input(), [
+        $data = array_merge(request()->only([
+            'first_name',
+            'last_name',
+            'email',
+            'password_confirmation',
+            'is_subscribed',
+        ]), [
             'password'                  => bcrypt(request()->input('password')),
             'api_token'                 => Str::random(80),
             'is_verified'               => ! core()->getConfigData('customer.settings.email.verification'),
             'customer_group_id'         => $this->customerGroupRepository->findOneWhere(['code' => 'general'])->id,
             'token'                     => md5(uniqid(rand(), true)),
-            'subscribed_to_news_letter' => isset(request()->input()['is_subscribed']),
+            'subscribed_to_news_letter' => request()->input('is_subscribed') ?? 0,
         ]);
 
         Event::dispatch('customer.registration.before');
 
         $customer = $this->customerRepository->create($data);
 
+        if (isset($data['subscribed_to_news_letter'])) {
+            Event::dispatch('customer.subscription.before');
+
+            $subscription = $this->subscriptionRepository->updateOrCreate([
+                'email'      => $data['email'],
+                'channel_id' => core()->getCurrentChannel()->id,
+            ], [
+                'customer_id'   => $customer->id,
+                'is_subscribed' => 1,
+                'token'         => uniqid(),
+            ]);
+
+            Event::dispatch('customer.subscription.after', $subscription);
+        }
+
         Event::dispatch('customer.registration.after', $customer);
 
-        if (! $customer) {
-            session()->flash('error', trans('shop::app.customers.signup-form.failed'));
-
-            return redirect()->back();
-        }
-
-        if (isset($data['is_subscribed'])) {
-            $subscription = $this->subscriptionRepository->findOneWhere(['email' => $data['email']]);
-
-            if ($subscription) {
-                $this->subscriptionRepository->update([
-                    'customer_id' => $customer->id,
-                ], $subscription->id);
-            } else {
-                $this->subscriptionRepository->create([
-                    'email'         => $data['email'],
-                    'customer_id'   => $customer->id,
-                    'channel_id'    => core()->getCurrentChannel()->id,
-                    'is_subscribed' => 1,
-                    'token'         => $token = uniqid(),
-                ]);
-
-                try {
-                    Mail::queue(new SubscriptionEmail([
-                        'email' => $data['email'],
-                        'token' => $token,
-                    ]));
-                } catch (\Exception $e) {
-                }
-            }
-        }
-
         if (core()->getConfigData('customer.settings.email.verification')) {
-            try {
-                if (core()->getConfigData('emails.general.notifications.emails.general.notifications.verification')) {
-                    Mail::queue(new VerificationEmail(['email' => $data['email'], 'token' => $data['token']]));
-                }
-
-                session()->flash('success', trans('shop::app.customers.signup-form.success-verify'));
-            } catch (\Exception $e) {
-                report($e);
-
-                session()->flash('info', trans('shop::app.customers.signup-form.success-verify-email-unsent'));
-            }
+            session()->flash('success', trans('shop::app.customers.signup-form.success-verify'));
         } else {
-            try {
-                if (core()->getConfigData('emails.general.notifications.emails.general.notifications.registration')) {
-                    Mail::queue(new RegistrationEmail(request()->all(), 'customer'));
-                }
-
-                if (core()->getConfigData('emails.general.notifications.emails.general.notifications.customer-registration-confirmation-mail-to-admin')) {
-                    Mail::queue(new RegistrationEmail(request()->all(), 'admin'));
-                }
-
-                session()->flash('success', trans('shop::app.customers.signup-form.success-verify'));
-            } catch (\Exception $e) {
-                report($e);
-
-                session()->flash('info', trans('shop::app.customers.signup-form.success-verify-email-unsent'));
-            }
             session()->flash('success', trans('shop::app.customers.signup-form.success'));
         }
 
@@ -139,7 +102,10 @@ class RegistrationController extends Controller
         $customer = $this->customerRepository->findOneByField('token', $token);
 
         if ($customer) {
-            $this->customerRepository->update(['is_verified' => 1, 'token' => 'NULL'], $customer->id);
+            $this->customerRepository->update([
+                'is_verified' => 1,
+                'token'       => NULL,
+            ], $customer->id);
 
             $this->customerRepository->syncNewRegisteredCustomerInformation($customer);
 
@@ -169,7 +135,7 @@ class RegistrationController extends Controller
         $this->customerRepository->update(['token' => $verificationData['token']], $customer->id);
 
         try {
-            Mail::queue(new VerificationEmail($verificationData));
+            Mail::queue(new EmailVerificationNotification($verificationData));
 
             if (Cookie::has('enable-resend')) {
                 \Cookie::queue(\Cookie::forget('enable-resend'));

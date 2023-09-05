@@ -3,44 +3,51 @@
     :has-feature="false"
     :has-footer="false"
 >
+    {{-- Page Title --}}
+    <x-slot:title>
+        @lang('shop::app.customers.signup-form.page-title')
+    </x-slot>
+
 	<div class="container mt-20 max-1180:px-[20px]">
         {{-- Company Logo --}}
-        <div class="flex items-center gap-x-[54px] max-[1180px]:gap-x-[35px]">
+        <div class="flex gap-x-[54px] items-center max-[1180px]:gap-x-[35px]">
             <a
                 href="{{ route('shop.home.index') }}" 
-                class="bs-logo bg-[position:-5px_-3px] bs-main-sprite w-[131px] h-[29px] inline-block m-[0_auto_20px_auto]"
+                class="m-[0_auto_20px_auto]"
             >
+                <img src="{{ bagisto_asset('images/logo.svg') }}">
             </a>
         </div>
         
         {{-- Form Container --}}
 		<div
-			class="w-full max-w-[870px] m-auto border border-[#E9E9E9] px-[90px] py-[60px] rounded-[12px] max-md:px-[30px] max-md:py-[30px]"
+			class="w-full max-w-[870px] m-auto px-[90px] py-[60px] border border-[#E9E9E9] rounded-[12px] max-md:px-[30px] max-md:py-[30px]"
         >
 			<h1 class="text-[40px] font-dmserif max-sm:text-[25px]">
                 @lang('shop::app.customers.signup-form.page-title')
             </h1>
 
-			<p class="text-[#7D7D7D] text-[20px] mt-[15px] max-sm:text-[16px]"> 
+			<p class="mt-[15px] text-[#7D7D7D] text-[20px] max-sm:text-[16px]"> 
                 @lang('shop::app.customers.signup-form.form-signup-text')
             </p>
 
-            <div class="rounded mt-[60px] max-sm:mt-[30px]">
+            <div class="mt-[60px] rounded max-sm:mt-[30px]">
                 <x-shop::form :action="route('shop.customers.register.store')">
                     {!! view_render_event('bagisto.shop.customers.signup_form_controls.before') !!}
 
                     <x-shop::form.control-group class="mb-4">
-                        <x-shop::form.control-group.label>
-                            @lang('shop::app.customers.signup-form.firstname')
+                        <x-shop::form.control-group.label class="required">
+                            @lang('shop::app.customers.signup-form.first-name')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="text"
                             name="first_name"
+                            class="!p-[20px_25px] rounded-lg"
                             :value="old('last_name')"
                             rules="required"
-                            label="First Name"
-                            placeholder="First Name"
+                            :label="trans('shop::app.customers.signup-form.first-name')"
+                            :placeholder="trans('shop::app.customers.signup-form.first-name')"
                         >
                         </x-shop::form.control-group.control>
 
@@ -53,17 +60,18 @@
                     {!! view_render_event('bagisto.shop.customers.signup_form_controls.firstname.after') !!}
 
                     <x-shop::form.control-group class="mb-4">
-                        <x-shop::form.control-group.label>
-                            @lang('shop::app.customers.signup-form.lastname')
+                        <x-shop::form.control-group.label class="required">
+                            @lang('shop::app.customers.signup-form.last-name')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="text"
                             name="last_name"
+                            class="!p-[20px_25px] rounded-lg"
                             :value="old('last_name')"
                             rules="required"
-                            label="Last Name"
-                            placeholder="Last Name"
+                            :label="trans('shop::app.customers.signup-form.last-name')"
+                            :placeholder="trans('shop::app.customers.signup-form.last-name')"
                         >
                         </x-shop::form.control-group.control>
 
@@ -76,16 +84,17 @@
                     {!! view_render_event('bagisto.shop.customers.signup_form_controls.lastname.after') !!}
 
                     <x-shop::form.control-group class="mb-4">
-                        <x-shop::form.control-group.label>
+                        <x-shop::form.control-group.label class="required">
                             @lang('shop::app.customers.signup-form.email')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="email"
                             name="email"
+                            class="!p-[20px_25px] rounded-lg"
                             :value="old('email')"
                             rules="required|email"
-                            label="Email"
+                            :label="trans('shop::app.customers.signup-form.email')"
                             placeholder="email@example.com"
                         >
                         </x-shop::form.control-group.control>
@@ -99,18 +108,19 @@
                     {!! view_render_event('bagisto.shop.customers.signup_form_controls.email.after') !!}
 
                     <x-shop::form.control-group class="mb-6">
-                        <x-shop::form.control-group.label>
+                        <x-shop::form.control-group.label class="required">
                             @lang('shop::app.customers.signup-form.password')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="password"
                             name="password"
+                            class="!p-[20px_25px] rounded-lg"
                             :value="old('password')"
                             rules="required|min:6"
                             ref="password"
-                            label="Password"
-                            placeholder="Password"
+                            :label="trans('shop::app.customers.signup-form.password')"
+                            :placeholder="trans('shop::app.customers.signup-form.password')"
                         >
                         </x-shop::form.control-group.control>
 
@@ -122,18 +132,19 @@
 
                     {!! view_render_event('bagisto.shop.customers.signup_form_controls.password.after') !!}
 
-                    <x-shop::form.control-group class="mb-6">
+                    <x-shop::form.control-group class="mb-4">
                         <x-shop::form.control-group.label>
-                            @lang('shop::app.customers.signup-form.confirm_pass')
+                            @lang('shop::app.customers.signup-form.confirm-pass')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="password"
                             name="password_confirmation"
+                            class="!p-[20px_25px] rounded-lg"
                             value=""
                             rules="confirmed:@password"
-                            label="Password"
-                            placeholder="Confirm Password"
+                            :label="trans('shop::app.customers.signup-form.password')"
+                            :placeholder="trans('shop::app.customers.signup-form.confirm-pass')"
                         >
                         </x-shop::form.control-group.control>
 
@@ -146,71 +157,55 @@
                     {!! view_render_event('bagisto.shop.customers.signup_form_controls.password_confirmation.after') !!}
 
 
-                    <div class="mb-[20px]">
-                        {!! Captcha::render() !!}
-                    </div>
+                    @if (core()->getConfigData('customer.captcha.credentials.status'))
+                        <div class="flex mb-[20px]">
+                            {!! Captcha::render() !!}
+                        </div>
+                    @endif
 
                     @if (core()->getConfigData('customer.settings.newsletter.subscription'))
-                        <div class="flex justify-between">
-                                <x-shop::form.control-group>
-                                    <x-shop::form.control-group.control
-                                        type="checkbox"
-                                        name="is_subscribed"
-                                        id="checkbox2"
-                                    >
-                                    <span
-                                        class="select-none  text-[16] text-navyBlue max-sm:text-[12px]"
-                                    > 
-                                        @lang('shop::app.customers.signup-form.subscribe-to-newsletter')
-                                    </span>
-                                    </x-shop::form.control-group.control>
-                                </x-shop::form.control-group>
+                        <div class="flex gap-[6px] items-center select-none">
+                            <input
+                                type="checkbox"
+                                name="is_subscribed"
+                                id="is-subscribed"
+                                class="hidden peer"
+                                onchange="switchVisibility()"
+                            />
+
+                            <label
+                                class="icon-uncheck text-[24px] text-navyBlue peer-checked:icon-check-box peer-checked:text-navyBlue cursor-pointer"
+                                for="is-subscribed"
+                            ></label>
+
+                            <label
+                                class="pl-0 text-[16] text-[#7d7d7d] max-sm:text-[12px] select-none cursor-pointer"
+                                for="is-subscribed"
+                            >
+                                @lang('shop::app.customers.signup-form.subscribe-to-newsletter')
+                            </label>
                         </div>
                     @endif
 
                     {!! view_render_event('bagisto.shop.customers.signup_form_controls.after') !!}
 
-                    <div class="flex gap-[36px] flex-wrap mt-[30px] items-center">
+                    <div class="flex gap-[36px] flex-wrap items-center mt-[30px]">
                         <button
-                            class="m-0 ml-[0px] block mx-auto w-full bg-navyBlue text-white text-[16px] max-w-[374px] font-medium py-[16px] px-[43px] rounded-[18px] text-center"
+                            class="bs-primary-button block w-full max-w-[374px] py-[16px] px-[43px] mx-auto m-0 ml-[0px] rounded-[18px] text-[16px] text-center"
                             type="submit"
                         >
-                            @lang('shop::app.customers.signup-form.button_title')
+                            @lang('shop::app.customers.signup-form.button-title')
                         </button>
 
                         <div class="flex gap-[15px] flex-wrap">
-                            <a
-                                href="" class="bg-[position:0px_-274px] bs-main-sprite w-[40px] h-[40px]"
-                                aria-label="Facebook"
-                            >
-                            </a>
-
-                            <a
-                                href=""
-                                class="bg-[position:-40px_-274px] bs-main-sprite w-[40px] h-[40px]"
-                                aria-label="Twitter"
-                            >
-                            </a>
-
-                            <a
-                                href="" class="bg-[position:-80px_-274px] bs-main-sprite w-[40px] h-[40px]"
-                                aria-label="Pintrest"
-                            >
-                            </a>
-
-                            <a
-                                href=""
-                                class="bg-[position:-120px_-274px] bs-main-sprite w-[40px] h-[40px]"
-                                aria-label="LinkedIn"
-                            >
-                            </a>
+                            {!! view_render_event('bagisto.shop.customers.login_form_controls.before') !!}
                         </div>
                     </div>
                 </x-shop::form>
             </div>
 
-			<p class="text-[#7D7D7D] font-medium mt-[20px]">
-                @lang('shop::app.customers.signup-form.account_exists')
+			<p class="mt-[20px] text-[#7D7D7D] font-medium">
+                @lang('shop::app.customers.signup-form.account-exists')
                 
                 <a class="text-navyBlue" 
                     href="{{ route('shop.customer.session.index') }}"
@@ -220,7 +215,7 @@
             </p>
 		</div>
 
-        <p class="mt-[30px]  mb-[15px] text-center text-[#7d7d7d] text-xs">
+        <p class="mt-[30px] mb-[15px] text-center text-[#7d7d7d] text-xs">
             @lang('shop::app.customer.signup-form.footer')
         </p>
 	</div>

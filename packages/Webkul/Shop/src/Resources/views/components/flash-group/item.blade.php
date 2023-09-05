@@ -8,18 +8,24 @@
 @pushOnce('scripts')
     <script type="text/x-template" id="v-flash-item-template">
         <div
-            class="flex gap-[46px] justify-between px-[20px] py-[12px] rounded-[8px] max-w-[408px]"
+            class="flex gap-[46px] justify-between w-max max-w-[408px] px-[20px] py-[12px] rounded-[8px]"
             :style="typeStyles[flash.type]['container']"
         >
             <p
-                class=" text-[14px]"
+                class="text-[14px] flex break-all"
                 :style="typeStyles[flash.type]['message']"
             >
+                <span
+                    class="icon-toast-done mr-[10px] text-[24px]"
+                    :class="iconClasses[flash.type]"
+                    :style="typeStyles[flash.type]['icon']"
+                ></span>
+
                 @{{ flash.message }}
             </p>
 
 			<span
-                class="icon-cancel cursor-pointer max-h-[16px] max-w-[16px]"
+                class="icon-cancel max-h-[16px] max-w-[16px] cursor-pointer"
                 :style="typeStyles[flash.type]['icon']"
                 @click="remove"
             ></span>
@@ -34,34 +40,47 @@
 
             data() {
                 return {
+                    iconClasses: {
+                        success: 'icon-toast-done',
+
+                        error: 'icon-toast-error',
+
+                        warning: 'icon-toast-exclamation-mark',
+
+                        info: 'icon-toast-info',
+                    },
+
                     typeStyles: {
                         success: {
-                            container: 'background: #CBEAD2',
+                            container: 'background: #D4EDDA',
 
-                            message: 'color: #13461C',
+                            message: 'color: #155721',
 
-                            icon: 'color: #6C9774'
+                            icon: 'color: #155721'
                         },
+
                         error: {
-                            container: 'background: #F5CCD2',
+                            container: 'background: #F8D7DA',
 
-                            message: 'color: #5D121B',
+                            message: 'color: #721C24',
 
-                            icon: 'color: #A86C73'
+                            icon: 'color: #721C24'
                         },
+
                         warning: {
-                            container: 'background: #FFF1C2',
+                            container: 'background: #FFF3CD',
 
-                            message: 'color: #715207',
+                            message: 'color: #856404',
 
-                            icon: 'color: #B7A063'
+                            icon: 'color: #856404'
                         },
+
                         info: {
-                            container: 'background: #e2e3e5',
+                            container: 'background: #E2E3E5',
 
-                            message: 'color: #383d41',
+                            message: 'color: #383D41',
 
-                            icon: 'color: #383d41'
+                            icon: 'color: #383D41'
                         },
                     },
                 };

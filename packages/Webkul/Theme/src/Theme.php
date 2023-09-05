@@ -3,6 +3,7 @@
 namespace Webkul\Theme;
 
 use Illuminate\Support\Facades\Vite;
+use Webkul\Theme\Exceptions\ViterNotFound;
 
 class Theme
 {
@@ -26,7 +27,8 @@ class Theme
         public $code,
         public $name = null,
         public $assetsPath = null,
-        public $viewsPath = null
+        public $viewsPath = null,
+        public $vite = []
     ) {
         $this->assetsPath = $assetsPath === null ? $code : $assetsPath;
 
@@ -83,53 +85,51 @@ class Theme
     /**
      * Convert to asset url based on current theme.
      *
-     * @param  string  $url
      * @return string
      */
-    public function url($url)
+    public function url(string $url, ?string $namespace)
     {
         $url = trim($url, '/');
 
         /**
-         * Hot file for dev.
+         * If the namespace is null, it means the theming system is activated. We use the request URI to
+         * detect the theme and provide Vite assets based on the current theme.
          */
-        $hotFile = $this->code . '-vite.hot';
+        if (empty($namespace)) {
+            $viteUrl = trim($this->vite['package_assets_directory'], '/') . '/' . $url;
+
+            return Vite::useHotFile($this->vite['hot_file'])
+                ->useBuildDirectory($this->vite['build_directory'])
+                ->asset($viteUrl);
+        }
 
         /**
-         * Testing vite url, will refactor and give good configuration.
+         * If a namespace is provided, it means the developer knows what they are doing and must create the
+         * registry in the provided configuration. We will analyze based on that.
          */
-        $viteUrl = 'src/Resources/assets/' . $url;
+        $viters = config('bagisto-vite.viters');
 
-        /**
-         * Testing build path, will refactor and give good configuration.
-         */
-        $buildPath = str_replace('public/', '', $this->assetsPath) . '/build';
+        if (empty($viters[$namespace])) {
+            throw new ViterNotFound($namespace);
+        }
 
-        /**
-         * Activated vite here. For dev and prod.
-         */
-        return Vite::useHotFile($hotFile)
-            ->useBuildDirectory($buildPath)
+        $viteUrl = trim($viters[$namespace]['package_assets_directory'], '/') . '/' . $url;
+
+        return Vite::useHotFile($viters[$namespace]['hot_file'])
+            ->useBuildDirectory($viters[$namespace]['build_directory'])
             ->asset($viteUrl);
     }
 
+    /**
+     * Set bagisto vite.
+     *
+     * @param  array  $entryPoints
+     * @return \Illuminate\Foundation\Vite
+     */
     public function setBagistoVite($entryPoints)
     {
-        /**
-         * Hot file for dev.
-         */
-        $hotFile = $this->code . '-vite.hot';
-
-        /**
-         * Testing build path, will refactor and give good configuration.
-         */
-        $buildPath = str_replace('public/', '', $this->assetsPath) . '/build';
-
-        /**
-         * Activated vite here. For dev and prod.
-         */
-        return Vite::useHotFile($hotFile)
-            ->useBuildDirectory($buildPath)
+        return Vite::useHotFile($this->vite['hot_file'])
+            ->useBuildDirectory($this->vite['build_directory'])
             ->withEntryPoints($entryPoints);
     }
 }

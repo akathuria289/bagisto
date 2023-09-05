@@ -1,3 +1,4 @@
+{{-- Mini Cart Vue Component --}}
 <v-mini-cart>
     <span class="icon-cart text-[24px] cursor-pointer"></span>
 </v-mini-cart>
@@ -5,12 +6,13 @@
 @pushOnce('scripts')
     <script type="text/x-template" id="v-mini-cart-template">
         <x-shop::drawer>
+            <!-- Drawer Toggler -->
             <x-slot:toggle>
                 <span class="relative">
                     <span class="icon-cart text-[24px] cursor-pointer"></span>
 
                     <span
-                        class="absolute py-[5px] px-[7px] top-[-15px] left-[18px] rounded-[44px] bg-[#060C3B] text-[#fff] text-[10px] font-semibold leading-[9px]"
+                        class="absolute  px-[7px] top-[-15px] left-[18px] py-[5px] bg-[#060C3B] rounded-[44px] text-[#fff] text-[10px] font-semibold leading-[9px]"
                         v-if="cart?.items_count"
                     >
                         @{{ cart.items_count }}
@@ -18,6 +20,7 @@
                 </span>
             </x-slot:toggle>
 
+            <!-- Drawer Header -->
             <x-slot:header>
                 <div class="flex justify-between items-center">
                     <p class="text-[26px] font-medium">
@@ -30,7 +33,9 @@
                 </p>
             </x-slot:header>
 
+            <!-- Drawer Content -->
             <x-slot:content>
+                <!-- Cart Item Listing -->
                 <div 
                     class="grid gap-[50px] mt-[35px]" 
                     v-if="cart?.items?.length"
@@ -39,16 +44,16 @@
                         class="flex gap-x-[20px]" 
                         v-for="item in cart?.items"
                     >
+                        <!-- Cart Item Image -->
                         <div class="">
                             <img
                                 :src="item.base_image.small_image_url"
                                 class="max-w-[110px] max-h-[110px] rounded-[12px]"
-                                alt=""
-                                title=""
-                            >
+                            />
                         </div>
 
-                        <div class="grid place-content-start justify-stretch gap-y-[10px] flex-1">
+                        <!-- Cart Item Information -->
+                        <div class="grid flex-1 gap-y-[10px] place-content-start justify-stretch">
                             <div class="flex flex-wrap justify-between">
                                 <p
                                     class="text-[16px] font-medium max-w-[80%]"
@@ -63,16 +68,18 @@
                                 </p>
                             </div>
 
+                            <!-- Cart Item Options Container -->
                             <div
                                 class="grid gap-x-[10px] gap-y-[6px] select-none"
                                 v-if="item.options.length"
                             >
+                                <!-- Details Toggler -->
                                 <div class="">
                                     <p
-                                        class="flex gap-x-[15px] text-[16px] items-center cursor-pointer"
+                                        class="flex gap-x-[15px] items-center text-[16px] cursor-pointer"
                                         @click="item.option_show = ! item.option_show"
                                     >
-                                        @lang('shop::app.checkout.cart.mini-cart.see-datails')
+                                        @lang('shop::app.checkout.cart.mini-cart.see-details')
 
                                         <span
                                             class="text-[24px]"
@@ -81,6 +88,7 @@
                                     </p>
                                 </div>
 
+                                <!-- Option Details -->
                                 <div class="grid gap-[8px]" v-show="item.option_show">
                                     <div class="" v-for="option in item.options">
                                         <p class="text-[14px] font-medium">
@@ -96,14 +104,16 @@
                             </div>
 
                             <div class="flex gap-[20px] items-center flex-wrap">
+                                <!-- Cart Item Quantity Changer -->
                                 <x-shop::quantity-changer
                                     name="quantity"
                                     ::value="item?.quantity"
-                                    class="gap-x-[20px] rounded-[54px] py-[5px] px-[14px] max-w-[150px] max-h-[36px]"
+                                    class="gap-x-[10px] max-w-[150px] max-h-[36px] py-[5px] px-[14px] rounded-[54px]"
                                     @change="updateItem($event, item)"
                                 >
                                 </x-shop::quantity-changer>
 
+                                <!-- Cart Item Remove Button -->
                                 <button
                                     type="button"
                                     class="text-[#0A49A7]"
@@ -116,6 +126,7 @@
                     </div>
                 </div>
 
+                <!-- Empty Cart Section -->
                 <div
                     class="pb-[30px]"
                     v-else
@@ -130,9 +141,10 @@
                 </div>
             </x-slot:content>
 
+            <!-- Drawer Footer -->
             <x-slot:footer>
                 <div v-if="cart?.items?.length">
-                    <div class="flex justify-between items-center mt-[60px] mb-[30px] pb-[8px] border-b-[1px] border-[#E9E9E9] px-[25px]">
+                    <div class="flex justify-between items-center mt-[60px] mb-[30px] px-[25px] pb-[8px] border-b-[1px] border-[#E9E9E9]">
                         <p class="text-[14px] font-medium text-[#7D7D7D]">
                             @lang('shop::app.checkout.cart.mini-cart.subtotal')
                         </p>
@@ -144,15 +156,16 @@
                         </p>
                     </div>
 
+                    <!-- Cart Action Container -->
                     <div class="px-[25px]">
                         <a
                             href="{{ route('shop.checkout.onepage.index') }}"
-                            class="m-0 ml-[0px] block mx-auto bg-navyBlue text-white text-base w-full font-medium py-[15px] px-[43px] rounded-[18px] text-center cursor-pointer max-sm:px-[20px]"
+                            class="block w-full mx-auto m-0 ml-[0px] py-[15px] px-[43px] bg-navyBlue rounded-[18px] text-white text-base font-medium text-center cursor-pointer max-sm:px-[20px]"
                         >
                             @lang('shop::app.checkout.cart.mini-cart.continue-to-checkout')
                         </a>
 
-                        <div class="m-0 ml-[0px] block text-base py-[15px] text-center font-medium cursor-pointer">
+                        <div class="block m-0 ml-[0px] py-[15px] text-base text-center font-medium cursor-pointer">
                             <a href="{{ route('shop.checkout.cart.index') }}">
                                 @lang('shop::app.checkout.cart.mini-cart.view-cart')
                             </a>
@@ -202,7 +215,11 @@
 
                     this.$axios.put('{{ route('shop.api.checkout.cart.update') }}', { qty })
                         .then(response => {
-                            this.cart = response.data.data;
+                            if (response.data.message) {
+                                this.cart = response.data.data;
+                            } else {
+                                this.$emitter.emit('add-flash', { type: 'warning', message: response.data.data.message });
+                            }
                         })
                         .catch(error => {});
                 },

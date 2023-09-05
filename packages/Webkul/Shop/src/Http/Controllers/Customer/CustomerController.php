@@ -2,25 +2,16 @@
 
 namespace Webkul\Shop\Http\Controllers\Customer;
 
-use Hash;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Mail;
-use Webkul\Core\Repositories\SubscribersListRepository;
+use Webkul\Shop\Http\Controllers\Controller;
 use Webkul\Customer\Repositories\CustomerRepository;
 use Webkul\Product\Repositories\ProductReviewRepository;
-use Webkul\Shop\Http\Controllers\Controller;
+use Webkul\Core\Repositories\SubscribersListRepository;
 use Webkul\Shop\Http\Requests\Customer\ProfileRequest;
-use Webkul\Shop\Mail\SubscriptionEmail;
 
 class CustomerController extends Controller
 {
-    /**
-     * Contains route related configuration.
-     *
-     * @var array
-     */
-    protected $_config;
-
     /**
      * Create a new controller instance.
      *
@@ -30,8 +21,8 @@ class CustomerController extends Controller
         protected CustomerRepository $customerRepository,
         protected ProductReviewRepository $productReviewRepository,
         protected SubscribersListRepository $subscriptionRepository
-    ) {
-        $this->_config = request('_config');
+    )
+    {
     }
 
     /**
@@ -100,7 +91,7 @@ class CustomerController extends Controller
 
         if ($customer = $this->customerRepository->update($data, auth()->guard('customer')->user()->id)) {
             if ($isPasswordChanged) {
-                Event::dispatch('user.admin.update-password', $customer);
+                Event::dispatch('customer.password.update.after', $customer);
             }
 
             Event::dispatch('customer.update.after', $customer);
@@ -121,14 +112,6 @@ class CustomerController extends Controller
                         'is_subscribed' => 1,
                         'token'         => $token = uniqid(),
                     ]);
-
-                    try {
-                        Mail::queue(new SubscriptionEmail([
-                            'email' => $data['email'],
-                            'token' => $token,
-                        ]));
-                    } catch (\Exception $e) {
-                    }
                 }
             } else {
                 $subscription = $this->subscriptionRepository->findOneWhere(['email' => $data['email']]);
@@ -166,7 +149,7 @@ class CustomerController extends Controller
         try {
             if (Hash::check(request()->input('password'), $customerRepository->password)) {
 
-                if ($customerRepository->all_orders->whereIn('status', ['pending', 'processing'])->first()) {
+                if ($customerRepository->orders->whereIn('status', ['pending', 'processing'])->first()) {
                     session()->flash('error', trans('shop::app.customers.account.profile.order-pending'));
 
                     return redirect()->route('shop.customers.account.profile.index');
@@ -185,7 +168,7 @@ class CustomerController extends Controller
         } catch (\Exception $e) {
             session()->flash('error', trans('shop::app.customers.account.profile.delete-failed'));
 
-            return redirect()->route($this->_config['redirect']);
+            return redirect()->route('shop.customers.account.profile.index');
         }
     }
 

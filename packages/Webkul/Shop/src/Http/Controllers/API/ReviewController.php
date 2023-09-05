@@ -4,8 +4,8 @@ namespace Webkul\Shop\Http\Controllers\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use Webkul\Product\Repositories\ProductRepository;
-use Webkul\Product\Repositories\ProductReviewAttachmentRepository;
 use Webkul\Product\Repositories\ProductReviewRepository;
+use Webkul\Product\Repositories\ProductReviewAttachmentRepository;
 use Webkul\Shop\Http\Resources\ProductReviewResource;
 
 class ReviewController extends APIController
@@ -19,7 +19,8 @@ class ReviewController extends APIController
         protected ProductRepository $productRepository,
         protected ProductReviewRepository $productReviewRepository,
         protected ProductReviewAttachmentRepository $productReviewAttachmentRepository
-    ) {
+    )
+    {
     }
 
     /**
@@ -27,7 +28,7 @@ class ReviewController extends APIController
      */
     const STATUS_APPROVED = 'approved';
 
-    const STATUS_PENDING = ' pending';
+    const STATUS_PENDING = 'pending';
 
     /**
      * Product listings.
@@ -60,20 +61,19 @@ class ReviewController extends APIController
             'attachments.*' => 'file',
         ]);
 
-        $data = [
-            'title'       => request()->input('title'),
-            'comment'     => request()->input('comment'),
-            'rating'      => request()->input('rating'),
-            'attachments' => request()->file('attachments', []),
+        $data = array_merge(request()->only([
+            'title',
+            'comment',
+            'rating',
+        ]), [
+            'attachments' => request()->file('attachments') ?? [],
             'status'      => self::STATUS_PENDING,
             'product_id'  => $id,
-        ];
+        ]);
 
         if ($customer = auth()->guard('customer')->user()) {
-            $data = array_merge($data, [
-                'name'        => $customer->name,
-                'customer_id' => $customer->id,
-            ]);
+            $data['name']        = $customer->name;
+            $data['customer_id'] = $customer->id;
         }
 
         $review = $this->productReviewRepository->create($data);
@@ -81,7 +81,7 @@ class ReviewController extends APIController
         $this->productReviewAttachmentRepository->upload($data['attachments'], $review);
 
         return new JsonResource([
-            'message' => trans('shop::app.products.submit-success'),
+            'message' => trans('shop::app.products.view.reviews.success'),
         ]);
     }
 }

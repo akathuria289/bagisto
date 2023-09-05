@@ -36,6 +36,7 @@
         "laravel/ui": "^4.0",
         "maatwebsite/excel": "^3.1.46",
         "paypal/paypal-checkout-sdk": "1.0.1",
+        "predis/predis": "^2.2",
         "prettus/l5-repository": "^2.6",
         "pusher/pusher-php-server": "^7.0",
         "spatie/laravel-sitemap": "^6.2"
@@ -58,7 +59,6 @@
             "Database\\Seeders\\": "database/seeders/",
             "Webkul\\Admin\\": "packages/Webkul/Admin/src",
             "Webkul\\Attribute\\": "packages/Webkul/Attribute/src",
-            "Webkul\\BookingProduct\\": "packages/Webkul/BookingProduct/src",
             "Webkul\\CartRule\\": "packages/Webkul/CartRule/src",
             "Webkul\\CatalogRule\\": "packages/Webkul/CatalogRule/src",
             "Webkul\\Category\\": "packages/Webkul/Category/src",
@@ -66,6 +66,7 @@
             "Webkul\\CMS\\": "packages/Webkul/CMS/src",
             "Webkul\\Core\\": "packages/Webkul/Core/src",
             "Webkul\\Customer\\": "packages/Webkul/Customer/src",
+            "Webkul\\DataGrid\\": "packages/Webkul/DataGrid/src",
             "Webkul\\DebugBar\\": "packages/Webkul/DebugBar/src",
             "Webkul\\Inventory\\": "packages/Webkul/Inventory/src",
             "Webkul\\Marketing\\": "packages/Webkul/Marketing/src",
@@ -82,7 +83,6 @@
             "Webkul\\SocialShare\\": "packages/Webkul/SocialShare/src",
             "Webkul\\Tax\\": "packages/Webkul/Tax/src",
             "Webkul\\Theme\\": "packages/Webkul/Theme/src",
-            "Webkul\\Ui\\": "packages/Webkul/Ui/src",
             "Webkul\\User\\": "packages/Webkul/User/src"
         }
     },
@@ -90,6 +90,7 @@
         "psr-4": {
             "Tests\\": "tests/",
             "Webkul\\Admin\\Tests\\": "packages/Webkul/Admin/tests",
+            "Webkul\\DataGrid\\Tests\\": "packages/Webkul/DataGrid/tests",
             "Webkul\\Shop\\Tests\\": "packages/Webkul/Shop/tests"
         }
     },

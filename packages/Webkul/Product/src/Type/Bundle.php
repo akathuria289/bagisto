@@ -39,20 +39,6 @@ class Bundle extends AbstractType
     ];
 
     /**
-     * These blade files will be included in product edit page.
-     *
-     * @var array
-     */
-    protected $additionalViews = [
-        'admin::catalog.products.accordians.images',
-        'admin::catalog.products.accordians.videos',
-        'admin::catalog.products.accordians.categories',
-        'admin::catalog.products.accordians.bundle-items',
-        'admin::catalog.products.accordians.channels',
-        'admin::catalog.products.accordians.product-links',
-    ];
-
-    /**
      * Is a composite product type.
      *
      * @var bool
@@ -247,17 +233,17 @@ class Bundle extends AbstractType
         $bundleQuantity = parent::handleQuantity((int) $data['quantity']);
 
         if (empty($data['bundle_options'])) {
-            return trans('shop::app.checkout.cart.integrity.missing_options');
+            return trans('shop::app.checkout.cart.missing-options');
         }
 
         $data['bundle_options'] = array_filter($this->validateBundleOptionForCart($data['bundle_options']));
 
         if (empty($data['bundle_options'])) {
-            return trans('shop::app.checkout.cart.integrity.missing_options');
+            return trans('shop::app.checkout.cart.missing-options');
         }
 
         if (! $this->haveSufficientQuantity($data['quantity'])) {
-            return trans('shop::app.checkout.cart.quantity.inventory_warning');
+            return trans('shop::app.checkout.cart.inventory-warning');
         }
 
         $products = parent::prepareForCart($data);
@@ -267,7 +253,7 @@ class Bundle extends AbstractType
 
             /* need to check each individual quantity as well if don't have then show error */
             if (! $product->getTypeInstance()->haveSufficientQuantity($data['quantity'] * $bundleQuantity)) {
-                return trans('shop::app.checkout.cart.quantity.inventory_warning');
+                return trans('shop::app.checkout.cart.inventory-warning');
             }
 
             if (! $product->getTypeInstance()->isSaleable()) {
@@ -503,7 +489,7 @@ class Bundle extends AbstractType
         $price = 0;
 
         foreach ($item->children as $childItem) {
-            $childResult = $childItem->product->getTypeInstance()->validateCartItem($childItem);
+            $childResult = $childItem->getTypeInstance()->validateCartItem($childItem);
 
             if ($childResult->isItemInactive()) {
                 $result->itemIsInactive();

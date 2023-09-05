@@ -1,21 +1,49 @@
-<v-media {{ $attributes }} ></v-media>
+<v-media {{ $attributes }} >
+    <x-shop::shimmer.image
+        class="w-[284px] h-[284px] mt-[30px] rounded-[12px]"
+    ></x-shop::shimmer.image>
+</v-media>
 
 @pushOnce('scripts')
     <script type="text/x-template" id="v-media-template">
-        <div class="flex flex-col mb-4 p-4 rounded-lg cursor-pointer">
-            <div
-                :class="{'border border-dashed border-gray-300 rounded-[18px]': isDragOver }"
-            >
+        <div class="flex flex-col mb-4 rounded-lg cursor-pointer">
+            <div :class="{'border border-dashed border-gray-300 rounded-[18px]': isDragOver }">
+                <div
+                    class="flex flex-col items-center justify-center w-[284px] h-[284px] bg-[#F5F5F5] rounded-[12px] cursor-pointer hover:bg-gray-100"
+                    v-if="uploadedFiles.isPicked"
+                >
+                    <div 
+                        class="group flex justify-center relative w-[284px] h-[284px]"
+                        @mouseenter="uploadedFiles.showDeleteButton = true"
+                        @mouseleave="uploadedFiles.showDeleteButton = false"
+                    >
+                        <img
+                            class="rounded-[12px] object-cover"
+                            :src="uploadedFiles.url"
+                            :class="{'opacity-25' : uploadedFiles.showDeleteButton}"
+                        >
+
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span 
+                                class="icon-bin text-[24px] text-black cursor-pointer"
+                                @click="removeFile"
+                            >
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 <label 
-                    for="dropzone-file"
-                    class="flex flex-col w-[286px] h-[286px] items-center justify-center rounded-[12px] cursor-pointer bg-[#F5F5F5] hover:bg-gray-100"
+                    for="file-input"
+                    class="flex flex-col items-center justify-center w-[284px] h-[284px] bg-[#F5F5F5] rounded-[12px] hover:bg-gray-100 cursor-pointer"
+                    v-show="! uploadedFiles.isPicked"
                     @dragover="onDragOver"
                     @dragleave="onDragLeave"
                     @drop="onDrop"
                 >
                     <label 
                         for="file-input"
-                        class="m-0 block mx-auto bg-navyBlue text-white text-base w-max font-medium py-[11px] px-[43px] rounded-[18px] text-center cursor-pointer bg"
+                        class="bs-primary-button block w-max m-0 mx-auto py-[11px] px-[43px] rounded-[18px] text-base text-center"
                     >
                         @lang('Add attachments')
                     </label>
@@ -25,8 +53,8 @@
                         :name="name"
                         id="file-input"
                         class="hidden"
-                        accept="image/*, video/*"
-                        :rules="rules"
+                        :accept="acceptedTypes"
+                        :rules="appliedRules"
                         :multiple="isMultiple"
                         @change="onFileChange"
                     >
@@ -34,78 +62,59 @@
                 </label>
             </div>
 
-            <div class="flex mt-3 items-center pl-[30px]">
-                <ul class="grid grid-cols-3 gap-4">
+            <div 
+                class="flex items-center"
+                v-if="isMultiple"
+            >
+                <ul class="flex gap-[10px] flex-wrap justify-left mt-2">
                     <li 
                         v-for="(file, index) in uploadedFiles"
                         :key="index"
-                        class="relative"
                     >
                         <template v-if="isImage(file)">
-                            <div
+                            <div 
+                                class="relative group flex justify-center h-12 w-12"
                                 @mouseenter="file.showDeleteButton = true"
                                 @mouseleave="file.showDeleteButton = false"
                             >
                                 <img
                                     :src="file.url"
                                     :alt="file.name"
-                                    class="rounded-[12px] min-w-[50px] max-h-[50px] cursor-pointer"
+                                    class="rounded-[12px] min-w-[48px] max-h-[48px]"
+                                    :class="{'opacity-25' : file.showDeleteButton}"
                                 >
 
-                                <button
-                                    v-if="file.showDeleteButton"    
-                                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition duration-300"
-                                    title="Remove"
-                                    @click="removeFile(index)"
-                                >
-                                    <svg 
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                        class="w-4 h-4"
-                                    >media
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M2 5a3 3 0 013-3h10a3 3 0 013 3v10a3 3 0 01-3 3H5a3 3 0 01-3-3V5zm3-1a1 1 0 00-1 1v2h12V5a1 1 0 00-1-1H5zm1 3a1 1 0 011-1h2a1 1 0 110 2H6a1 1 0 01-1-1zm4 4a1 1 0 100 2h2a1 1 0 100-2H11zm-4 0a1 1 0 100 2h2a1 1 0 100-2H7zm4 4a1 1 0 110 2h2a1 1 0 110-2h-2z"
-                                        clip-rule="evenodd"
-                                    />
-                                    </svg>
-                                </button>
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span 
+                                        class="icon-bin text-[24px] text-black cursor-pointer"
+                                        @click="removeFile(index)"
+                                    >
+                                    </span>
+                                </div>
                             </div>
                         </template>
 
                         <template v-else>
                             <div
+                                class="relative group flex justify-center h-12 w-12"
                                 @mouseenter="file.showDeleteButton = true"
                                 @mouseleave="file.showDeleteButton = false"
                             >
                                 <video
                                     :src="file.url"
                                     :alt="file.name"
-                                    class="rounded-[12px] min-w-[50px] max-h-[50px] cursor-pointer"
+                                    class="min-w-[50px] max-h-[50px] rounded-[12px]"
+                                    :class="{'opacity-25' : file.showDeleteButton}"
                                 >
                                 </video>
 
-                                <button
-                                    v-if="file.showDeleteButton"
-                                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition duration-300"
-                                    title="Remove"
-                                    @click="removeFile(index)"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                        class="w-4 h-4"
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span 
+                                        class="icon-bin text-[24px] text-black cursor-pointer"
+                                        @click="removeFile(index)"
                                     >
-                                        
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M2 5a3 3 0 013-3h10a3 3 0 013 3v10a3 3 0 01-3 3H5a3 3 0 01-3-3V5zm3-1a1 1 0 00-1 1v2h12V5a1 1 0 00-1-1H5zm1 3a1 1 0 011-1h2a1 1 0 110 2H6a1 1 0 01-1-1zm4 4a1 1 0 100 2h2a1 1 0 100-2H11zm-4 0a1 1 0 100 2h2a1 1 0 100-2H7zm4 4a1 1 0 110 2h2a1 1 0 110-2h-2z"
-                                        clip-rule="evenodd"
-                                    />
-                                    </svg>
-                                </button>
+                                    </span>
+                                </div>
                             </div>
                         </template>
                     </li>
@@ -118,14 +127,58 @@
         app.component("v-media", {
             template: '#v-media-template',
 
-            props: ['name', 'isMultiple', 'rules'],
+            props: {
+                name: {
+                    type: String, 
+                    default: 'attachments',
+                }, 
+
+                isMultiple: {
+                    type: Boolean,
+                    default: false,
+                }, 
+
+                rules: {
+                    type: String,
+                },
+
+                acceptedTypes: {
+                    type: String, 
+                    default: 'image/*, video/*,'
+                }, 
+
+                label: {
+                    type: String, 
+                    default: 'Add attachments'
+                }, 
+
+                src: {
+                    type: String,
+                    default: ''
+                }
+            },
 
             data() {
                 return {
                     uploadedFiles: [],
 
                     isDragOver: false,
+
+                    appliedRules: '',
                 };
+            },
+
+            created() {
+                this.appliedRules = this.rules;
+
+                if (this.src != '') {
+                    this.appliedRules = '';
+
+                    this.uploadedFiles = {
+                        isPicked: true,
+                        url: this.src,
+                    }
+                }
             },
 
             methods: {
@@ -138,6 +191,16 @@
                         let reader = new FileReader();
 
                         reader.onload = () => {
+                            if (! this.isMultiple) {
+                                this.uploadedFiles = {
+                                    isPicked: true,
+                                    name: file.name,
+                                    url: reader.result,
+                                }
+
+                                return;
+                            }
+
                             this.uploadedFiles.push({
                                 name: file.name,
                                 url: reader.result,
@@ -155,6 +218,16 @@
                         let reader = new FileReader();
                         
                         reader.onload = () => {
+                            if (! this.isMultiple) {
+                                this.uploadedFiles = {
+                                    isPicked: true,
+                                    name: file.name,
+                                    url: reader.result,
+                                }
+
+                                return;
+                            }
+
                             this.uploadedFiles.push({
                                 name: file.name,
                                 url: reader.result,
@@ -166,6 +239,10 @@
                 },
 
                 isImage(file) {
+                    if (! file.name) {
+                        return;
+                    }
+
                     return file.name.match(/\.(jpg|jpeg|png|gif)$/i);
                 },
 
@@ -192,6 +269,18 @@
                 },
 
                 removeFile(index) {
+                    if (! this.isMultiple) {
+                        this.uploadedFiles = [];
+
+                        this.appliedRules = this.rules;
+                        
+                        return;
+                    }
+
+                    if (typeof this.uploadedFiles == 'object') {
+                        return;
+                    }
+
                     this.uploadedFiles.splice(index, 1);
                 },
             },        

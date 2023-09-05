@@ -751,8 +751,8 @@ return [
         'yes'                         => 'Да',
         'no'                          => 'Нет',
         'delete'                      => 'Удалить',
-        'enable-atleast-one-shipping' => 'Включите хотя бы один способ доставки.',
-        'enable-atleast-one-payment'  => 'Включите хотя бы один способ оплаты.',
+        'enable-at-least-one-shipping' => 'Включите хотя бы один способ доставки.',
+        'enable-at-least-one-payment'  => 'Включите хотя бы один способ оплаты.',
 
         'tax-categories' => [
             'title'           => 'Налоговые категории',
@@ -908,8 +908,6 @@ return [
             'inventory_sources'      => 'Источники запасов',
             'design'                 => 'Дизайн',
             'theme'                  => 'Тема',
-            'home_page_content'      => 'Контент домашней страницы',
-            'footer_content'         => 'Содержимое нижнего колонтитула',
             'logo'                   => 'логотип',
             'favicon'                => 'Фавикон',
             'create-success'         => 'Канал успешно создан.',
@@ -1046,9 +1044,9 @@ return [
             'error-create'        => 'Адрес клиента не создан.',
         ],
 
-        'loginascustomer' => [
+        'login-as-customer' => [
             'grid-title'   => 'увійти як клієнт',
-            'login-message'=> 'ви ввійшли як :customer_name',
+            'login-message' => 'ви ввійшли як :customer_name',
         ],
 
         'note' => [
@@ -1368,12 +1366,6 @@ return [
             'name'       => '401',
             'title'      => 'Несанкционированная ошибка',
             'message'    => 'Запрос не был применен, так как в нем отсутствуют действительные учетные данные для аутентификации целевого ресурса.',
-        ],
-
-        'tinymce' => [
-            'http-error'    => 'Ошибка HTTP.',
-            'invalid-json'  => 'Неверный JSON.',
-            'upload-failed' => 'Загрузка изображения не удалась из-за ошибки транспорта XHR.',
         ],
     ],
 
